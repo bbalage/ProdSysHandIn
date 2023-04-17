@@ -1,17 +1,20 @@
 #include <iostream>
 #include <vector>
 
-#include "Model/ModelCreator.hpp"
 #include "Planner/Planner.hpp"
 #include "Simulator/Simulator.hpp"
 #include "Evaluator/Evaluator.hpp"
 #include "util/output.hpp"
+#include "Model/Model.hpp"
 
 int main(int argc, char **argv)
 {
+    // Initialize
+    // std::mt19937 rng(time(0));
+    srand(time(0));
+
     // Build model
-    ModelCreatorRandom modelCreator;
-    auto model = modelCreator.createModel();
+    auto model = createRandomModel();
 
     // Simulate
     PlannerSimple planner;
