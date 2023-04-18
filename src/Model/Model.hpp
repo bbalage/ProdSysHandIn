@@ -48,7 +48,7 @@ struct Workstation
 
 struct Order
 {
-    i_t product;
+    std::vector<ThingAndAmount> products;
     int priority;
     ulong due;
 };
@@ -57,7 +57,6 @@ struct Model
 {
     std::vector<Workstation> workstations;
     std::vector<Product> products;
-    std::vector<TechPlan> techPlans;
     std::vector<Order> orders;
     uint workstationTypes;
 };
