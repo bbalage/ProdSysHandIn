@@ -2,9 +2,13 @@
 #define PROD_SYS_HAND_IN_MODEL_MODEL_HPP
 
 #include <vector>
-#include <random>
+#include <map>
+#include "../util/util.hpp"
 
+// Index of any vector in the model
 typedef size_t i_t;
+// Workstation type
+typedef uint wt_t;
 
 struct ThingAndAmount
 {
@@ -14,9 +18,14 @@ struct ThingAndAmount
     bool operator==(const ThingAndAmount &other) const { return thing == other.thing && amount == other.amount; }
 };
 
+struct Material
+{
+    uint amount;
+};
+
 struct Operation
 {
-    uint workstationType;
+    wt_t workstationType;
     // <Product id, amount> pairs
     std::vector<ThingAndAmount> materials;
     // Time it takes to complete the operation
@@ -36,7 +45,7 @@ struct TechPlan
 struct Product
 {
     // Operations that if completed produce this product as a result.
-    std::vector<Operation> ops;
+    std::vector<i_t> techPlans;
     // std::vector<TechPlan> techPlans;
     size_t amount;
 };
@@ -53,12 +62,22 @@ struct Order
     ulong due;
 };
 
+struct Job
+{
+    i_t techPlan;
+    i_t operation;
+};
+
 struct Model
 {
+    wt_t workstationTypes;
     std::vector<Workstation> workstations;
+    std::vector<Material> materials;
     std::vector<Product> products;
+    std::vector<TechPlan> techPlans;
     std::vector<Order> orders;
-    uint workstationTypes;
+
+    std::map<wt_t, std::vector<i_t>> workstationTypeMap;
 };
 
 Model createRandomModel();

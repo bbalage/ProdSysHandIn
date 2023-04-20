@@ -5,8 +5,8 @@
 
 struct Plan
 {
-    // Matrix where rows denote the agents and columns the assigned cargo.
-    std::vector<std::vector<uint>> sch_matrix;
+    // Matrix where rows denote the workstations and columns the job.
+    std::vector<std::vector<Job>> sch_matrix;
 };
 
 class Planner

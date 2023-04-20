@@ -2,7 +2,8 @@
 
 void SimulatorSimple::simulate(Model &model, Planner &planner, double t_ref)
 {
-    // const auto &sch = plan.sch_matrix;
+    Plan plan = planner.plan(model);
+    const auto &sch = plan.sch_matrix;
     // const auto &dest = m_model->destination;
     // for (uint i = 0; i < sch.size(); ++i)
     // {
@@ -24,4 +25,5 @@ void SimulatorSimple::simulate(Model &model, Planner &planner, double t_ref)
     //         agent.freeAt = job.deliveryTime;
     //     }
     // }
+    return;
 }

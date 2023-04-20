@@ -3,8 +3,6 @@
 Model createRandomModel()
 {
     Model model;
-    auto randBtw = [](uint min, uint max)
-    { return min + rand() % (max - min); };
 
     // Generate workstations
     constexpr uint minNumOfWorkstations = 5;
@@ -14,19 +12,32 @@ Model createRandomModel()
     model.workstationTypes = numWorkstations / workstationsPerTypes;
     for (uint i = 0; i < numWorkstations; ++i)
     {
+        wt_t wt_type = i % model.workstationTypes;
+        if (model.workstationTypeMap.contains(wt_type))
+            model.workstationTypeMap[wt_type].push_back(model.workstations.size());
+        else
+            model.workstationTypeMap[wt_type] = std::vector<i_t>(1, model.workstations.size());
+
         model.workstations.push_back(Workstation{
-            .type = i % model.workstationTypes});
+            .type = wt_type});
+    }
+
+    // Generate raw materials
+    constexpr uint numOfRawMaterials = 5;
+    for (uint i = 0; i < numOfRawMaterials; ++i)
+    {
+        model.materials.push_back(Material{
+            .amount = 0U});
     }
 
     // Generate products
     constexpr uint minNumOfProducts = 30;
     constexpr uint maxNumOfProducts = 60;
-    constexpr uint numOfRawMaterials = 5;
     const uint numOfProducts = randBtw(minNumOfProducts, maxNumOfProducts);
     for (uint i = 0; i < numOfProducts; ++i)
     {
         model.products.push_back(Product{
-            .amount = i < minNumOfProducts / numOfRawMaterials ? std::numeric_limits<size_t>::max() : 0U});
+            .amount = 0U});
     }
 
     // Generate tech plans
@@ -40,23 +51,32 @@ Model createRandomModel()
     constexpr uint maxNumOfMatPerOp = 20;
 
     const uint numberOfTechPlans = randBtw(minNumOfTechPlansPerProduct, maxNumOfTechPlansPerProduct);
-    for (uint prodI = numOfRawMaterials; prodI < model.products.size(); ++prodI)
+    for (uint prodI = 0; prodI < model.products.size(); ++prodI)
     {
-        const uint numOfOperations = randBtw(minNumOfOpsPerTechPlan, maxNumOfOpsPerTechPlan);
-        Product &product = model.products[prodI];
-        for (uint opI = 0; opI < numOfOperations; ++opI)
+        const uint numOfTechPlans = randBtw(minNumOfTechPlansPerProduct, maxNumOfTechPlansPerProduct);
+        for (uint techI = 0; techI < numOfTechPlans; ++techI)
         {
-            Operation op{
-                .workstationType = randBtw(0, model.workstationTypes),
-                .time = randBtw(minTimeForOperation, maxTimeForOperation)};
-            const uint numberOfMaterialsNeeded = randBtw(0, prodI - 1);
-            for (uint matI = 0; matI < numberOfMaterialsNeeded; ++matI)
+            TechPlan tp;
+            Product &product = model.products[prodI];
+            const uint numOfOperations = randBtw(minNumOfOpsPerTechPlan, maxNumOfOpsPerTechPlan);
+            for (uint opI = 0; opI < numOfOperations; ++opI)
             {
-                op.materials.push_back(ThingAndAmount{
-                    .thing = randBtw(0, prodI - 1),
-                    .amount = randBtw(minNumOfMatPerOp, maxNumOfMatPerOp)});
+                Operation op{
+                    .workstationType = randBtw(0, model.workstationTypes),
+                    .time = randBtw(minTimeForOperation, maxTimeForOperation)};
+                const uint numberOfMaterialsNeeded = randBtw(1, numOfRawMaterials);
+                for (uint matI = 0; matI < numberOfMaterialsNeeded; ++matI)
+                {
+                    op.materials.push_back(ThingAndAmount{
+                        .thing = randBtw(0, numOfRawMaterials),
+                        .amount = randBtw(minNumOfMatPerOp, maxNumOfMatPerOp)});
+                }
+                if (std::find(tp.operations.begin(), tp.operations.end(), op) != tp.operations.end())
+                    continue;
+                tp.operations.push_back(std::move(op));
             }
-            product.ops.push_back(std::move(op));
+            product.techPlans.push_back(model.techPlans.size());
+            model.techPlans.push_back(tp);
         }
     }
 
