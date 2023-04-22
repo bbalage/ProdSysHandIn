@@ -29,7 +29,7 @@ struct Operation
     // <Product id, amount> pairs
     std::vector<ThingAndAmount> materials;
     // Time it takes to complete the operation
-    ulong time;
+    long time;
 
     bool operator==(const Operation &other) const
     {
@@ -48,20 +48,25 @@ struct Product
     std::vector<i_t> techPlans;
 };
 
-struct ProductInstance
+struct WSOpLog
 {
-    i_t product;
+    long startTime;
+    long endTime;
+    i_t job;
+    i_t op;
 };
 
 struct Workstation
 {
     uint type;
+
+    std::vector<WSOpLog> opLogs;
 };
 
 struct Order
 {
     std::vector<ThingAndAmount> products;
-    int priority;
+    uint priority;
     long due;
 
     std::vector<ThingAndAmount> completionAmount;
@@ -69,11 +74,26 @@ struct Order
     long lateness;
 };
 
+struct JobOpLog
+{
+    long startTime;
+    long endTime;
+    bool finished;
+};
+
 struct Job
 {
     i_t order;
     i_t product;
     i_t techPlan;
+
+    std::vector<JobOpLog> opLogs;
+};
+
+struct JobOp
+{
+    i_t job;
+    i_t op;
 };
 
 struct Model
@@ -84,7 +104,8 @@ struct Model
     std::vector<Product> products;
     std::vector<TechPlan> techPlans;
     std::vector<Order> orders;
-    std::vector<ProductInstance> productInstances;
+
+    std::vector<Job> jobs;
 
     std::map<wt_t, std::vector<i_t>> workstationTypeMap;
 };

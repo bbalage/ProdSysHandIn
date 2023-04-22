@@ -26,7 +26,7 @@ public:
      * @param planner
      * @param t_ref The starting (reference) time of the simulation.
      */
-    virtual void simulate(Model &model, Planner &planner, double t_ref) = 0;
+    virtual void simulate(Model &model, Plan &plan, long t_ref) = 0;
 };
 
 class SimulatorSimple : public Simulator
@@ -34,7 +34,7 @@ class SimulatorSimple : public Simulator
 public:
     SimulatorSimple() {}
 
-    void simulate(Model &model, Planner &planner, double t_ref = 0) override;
+    void simulate(Model &model, Plan &plan, long t_ref = 0) override;
 };
 
 #endif

@@ -16,10 +16,13 @@ int main(int argc, char **argv)
     // Build model
     auto model = createRandomModel();
 
-    // Simulate
+    // Plan
     PlannerSimple planner;
+    Plan plan = planner.plan(model);
+
+    // Simulate
     SimulatorSimple simulator;
-    simulator.simulate(model, planner);
+    simulator.simulate(model, plan);
 
     // Evaluate
     // Eval eval = evaluate(model, report);

@@ -5,9 +5,10 @@
 
 struct Plan
 {
-    // Matrix where rows denote the job and columns the workstation.
-    std::vector<std::vector<i_t>> sch_matrix;
+    // Matrix where rows denote the workstation and columns the job.
+    std::vector<std::vector<JobOp>> sch_matrix;
     std::vector<Job> jobs;
+    bool invalid;
 };
 
 class Planner

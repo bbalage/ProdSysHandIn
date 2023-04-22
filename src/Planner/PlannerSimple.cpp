@@ -2,7 +2,8 @@
 
 Plan PlannerSimple::plan(const Model &model) const
 {
-    Plan plan;
+    Plan plan{
+        .invalid = false};
 
     // Create jobs from orders
     for (i_t orI = 0; orI < model.orders.size(); ++orI)
@@ -17,15 +18,22 @@ Plan PlannerSimple::plan(const Model &model) const
 
                 // Randomly choose which way to produce the product
                 i_t tpI = randBtw(0, prod.techPlans.size());
+                const TechPlan &tp = model.techPlans[tpI];
                 plan.jobs.push_back(Job{.order = orI,
                                         .product = prodI,
-                                        .techPlan = tpI});
+                                        .techPlan = tpI,
+                                        .opLogs = std::vector<JobOpLog>(
+                                            tp.operations.size(),
+                                            JobOpLog{
+                                                .startTime = 0,
+                                                .endTime = 0,
+                                                .finished = false})});
             }
         }
     }
 
     // Create schedule matrix from jobs
-    plan.sch_matrix.resize(plan.jobs.size(), std::vector<i_t>());
+    plan.sch_matrix.resize(model.workstations.size(), std::vector<JobOp>());
     std::vector<i_t> workstationTypeCounters(model.workstationTypes, 0);
     for (i_t jI = 0; jI < plan.jobs.size(); ++jI)
     {
@@ -41,7 +49,7 @@ Plan PlannerSimple::plan(const Model &model) const
             if (counter == wss_of_type.size())
                 counter = 0;
 
-            plan.sch_matrix[jI].push_back(wsI);
+            plan.sch_matrix[wsI].push_back(JobOp{.job = jI, .op = opI});
         }
     }
 

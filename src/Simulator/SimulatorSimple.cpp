@@ -1,32 +1,59 @@
 #include "Simulator.hpp"
 
-void SimulatorSimple::simulate(Model &model, Planner &planner, double t_ref)
+void SimulatorSimple::simulate(Model &model, Plan &plan, long t_ref)
 {
-    Plan plan = planner.plan(model);
     const auto &sch = plan.sch_matrix;
-    // const auto &dest = m_model->destination;
-    for (size_t jI = 0; jI < sch.size(); ++jI)
+    auto &jobs = plan.jobs;
+    std::vector<i_t> nextJobs(sch.size(), 0);
+    while (true)
     {
-    }
-    // for (uint i = 0; i < sch.size(); ++i)
-    // {
-    //     auto &agent = m_model->agents[i];
-    //     agent.distTravelled = 0;
-    //     agent.freeAt = m_t_ref;
-    //     for (uint j = 0; j < sch[i].size(); ++j)
-    //     {
-    //         auto &job = m_model->cargos[sch[i][j]];
-    //         const auto dist = eucl_dist(agent.pos, job.pos);
-    //         const auto dist_dest = eucl_dist(job.pos, dest.pos);
-    //         const auto timeToReach = time_taken(dist, agent.speed);
-    //         const auto timeToDeliver = time_taken(dist_dest, agent.speed);
+        bool couldLaunchAtLeastOneJob = false;
+        bool allJobsCompleted = true;
+        for (size_t wsI = 0; wsI < sch.size(); ++wsI)
+        {
+            // If there is not any queued jobs for this workstation, continue with next one.
+            if (nextJobs[wsI] >= sch[wsI].size())
+                continue;
+            allJobsCompleted = false;
+            const auto &jobOp = sch[wsI][nextJobs[wsI]];
+            Job &job = jobs[jobOp.job];
+            const auto &op = model.techPlans[job.techPlan].operations[jobOp.op];
+            Workstation &ws = model.workstations[wsI];
+            long ref = ws.opLogs.size() == 0 ? t_ref : ws.opLogs[ws.opLogs.size() - 1].endTime;
+            auto &opLog = job.opLogs[jobOp.op];
 
-    //         job.pickupTime = agent.freeAt + timeToReach;
-    //         agent.distTravelled += dist + dist_dest;
-    //         job.deliveryTime = job.pickupTime + timeToDeliver;
-    //         agent.pos = dest.pos;
-    //         agent.freeAt = job.deliveryTime;
-    //     }
-    // }
+            // Job operation is launchable if all its previous operations had been finished
+            // If the workstation can launch the job, then launch it
+            // If not, go to the next workstation
+            if (jobOp.op == 0)
+            {
+                opLog.startTime = ref;
+            }
+            else if (job.opLogs[jobOp.op - 1].finished)
+            {
+                opLog.startTime = std::max(job.opLogs[jobOp.op - 1].endTime, ref);
+            }
+            else
+                continue;
+            opLog.endTime = opLog.startTime + op.time;
+            opLog.finished = true;
+            ws.opLogs.push_back(WSOpLog{
+                .startTime = opLog.startTime,
+                .endTime = opLog.endTime,
+                .job = jobOp.job,
+                .op = jobOp.op});
+            couldLaunchAtLeastOneJob = true;
+            nextJobs[wsI]++;
+        }
+        if (allJobsCompleted)
+        {
+            break;
+        }
+        if (!couldLaunchAtLeastOneJob)
+        {
+            plan.invalid = true;
+            break;
+        }
+    }
     return;
 }
