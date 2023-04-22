@@ -1,4 +1,5 @@
 #include "Model.hpp"
+#include <stdexcept>
 
 Model createRandomModel()
 {
@@ -36,8 +37,7 @@ Model createRandomModel()
     const uint numOfProducts = randBtw(minNumOfProducts, maxNumOfProducts);
     for (uint i = 0; i < numOfProducts; ++i)
     {
-        model.products.push_back(Product{
-            .amount = 0U});
+        model.products.push_back(Product{});
     }
 
     // Generate tech plans

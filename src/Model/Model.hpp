@@ -46,8 +46,11 @@ struct Product
 {
     // Operations that if completed produce this product as a result.
     std::vector<i_t> techPlans;
-    // std::vector<TechPlan> techPlans;
-    size_t amount;
+};
+
+struct ProductInstance
+{
+    i_t product;
 };
 
 struct Workstation
@@ -59,13 +62,18 @@ struct Order
 {
     std::vector<ThingAndAmount> products;
     int priority;
-    ulong due;
+    long due;
+
+    std::vector<ThingAndAmount> completionAmount;
+    long completionTime;
+    long lateness;
 };
 
 struct Job
 {
+    i_t order;
+    i_t product;
     i_t techPlan;
-    i_t operation;
 };
 
 struct Model
@@ -76,6 +84,7 @@ struct Model
     std::vector<Product> products;
     std::vector<TechPlan> techPlans;
     std::vector<Order> orders;
+    std::vector<ProductInstance> productInstances;
 
     std::map<wt_t, std::vector<i_t>> workstationTypeMap;
 };

@@ -5,6 +5,9 @@ void SimulatorSimple::simulate(Model &model, Planner &planner, double t_ref)
     Plan plan = planner.plan(model);
     const auto &sch = plan.sch_matrix;
     // const auto &dest = m_model->destination;
+    for (size_t jI = 0; jI < sch.size(); ++jI)
+    {
+    }
     // for (uint i = 0; i < sch.size(); ++i)
     // {
     //     auto &agent = m_model->agents[i];
