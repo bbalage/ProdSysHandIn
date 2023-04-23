@@ -42,6 +42,13 @@ void SimulatorSimple::simulate(Model &model, Plan &plan, long t_ref)
                 .endTime = opLog.endTime,
                 .job = jobOp.job,
                 .op = jobOp.op});
+
+            // Update the order's completion time. If one of the order's operations finish after the
+            // current completion time, then the order's completion time should be set to the operation's
+            // completion time.
+            Order &order = model.orders[job.order];
+            order.completionTime = std::max(order.completionTime, opLog.endTime);
+
             couldLaunchAtLeastOneJob = true;
             nextJobs[wsI]++;
         }
@@ -54,6 +61,13 @@ void SimulatorSimple::simulate(Model &model, Plan &plan, long t_ref)
             plan.invalid = true;
             break;
         }
+    }
+    if (plan.invalid)
+        return;
+
+    for (Order &order : model.orders)
+    {
+        order.lateness = order.completionTime - order.due;
     }
     return;
 }

@@ -69,7 +69,7 @@ struct Order
     uint priority;
     long due;
 
-    std::vector<ThingAndAmount> completionAmount;
+    // std::vector<ThingAndAmount> completionAmount; // TODO: something like this
     long completionTime;
     long lateness;
 };

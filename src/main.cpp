@@ -25,8 +25,8 @@ int main(int argc, char **argv)
     simulator.simulate(model, plan);
 
     // Evaluate
-    // Eval eval = evaluate(model, report);
+    Eval eval = evaluate(model);
 
     // Output
-    // print_eval(eval);
+    print_eval(eval);
 }

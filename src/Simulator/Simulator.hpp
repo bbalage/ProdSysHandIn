@@ -4,11 +4,6 @@
 #include "../Model/Model.hpp"
 #include "../Planner/Planner.hpp"
 
-struct Report
-{
-    double timeElapsed;
-};
-
 class Simulator
 {
 public:

@@ -12,8 +12,7 @@ void print_eval(const Eval &eval)
               << "Csum: " << eval.Csum << "\n"
               << "Lmax: " << eval.Lmax << "\n"
               << "Tsum: " << eval.Tsum << "\n"
-              << "Usum: " << eval.Usum << "\n"
-              << "Max distance: " << eval.distMax << std::endl;
+              << "Usum: " << eval.Usum << std::endl;
 }
 
 #endif

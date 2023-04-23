@@ -6,39 +6,31 @@
 
 struct Eval
 {
-    ulong Cmax;    // completetion time
-    ulong Csum;    // sum of completion time of jobs
-    ulong Lmax;    // max of lateness
-    ulong Tsum;    // sum of tardiness of jobs (lateness but with no negative values)
-    ulong Usum;    // number of late jobs
-    ulong distMax; // maximal distance travelled by any agent
+    long Cmax; // completetion time
+    long Csum; // sum of completion time of jobs
+    long Lmax; // max of lateness
+    long Tsum; // sum of tardiness of jobs (lateness but with no negative values)
+    long Usum; // number of late jobs
 };
 
-Eval evaluate(const Model &model, const Report &report)
+Eval evaluate(const Model &model)
 {
     Eval eval{
-        .Cmax = std::numeric_limits<ulong>::min(),
+        .Cmax = std::numeric_limits<long>::min(),
         .Csum = 0,
-        .Lmax = std::numeric_limits<ulong>::min(),
+        .Lmax = std::numeric_limits<long>::min(),
         .Tsum = 0,
-        .Usum = 0,
-        .distMax = std::numeric_limits<ulong>::min()};
-    // for (uint i = 0; i < model.cargos.size(); ++i)
-    // {
-    //     const auto &job = model.cargos[i];
-    //     eval.Cmax = std::max(job.deliveryTime, eval.Cmax);
-    //     eval.Csum += job.deliveryTime;
-    //     const auto L = job.deliveryTime - job.dueDelivery;
-    //     if (eval.Lmax < L)
-    //         eval.Lmax = L;
-    //     const auto T = L > 0.0 ? L : 0.0;
-    //     eval.Tsum += T;
-    //     if (T != 0.0)
-    //         ++eval.Usum;
-    // }
-    // eval.distMax = std::max_element(model.agents.begin(), model.agents.end(), [](const auto &a1, const auto &a2)
-    //                                 { return a1.distTravelled < a2.distTravelled; })
-    //                    ->distTravelled;
+        .Usum = 0};
+    for (const Order &order : model.orders)
+    {
+        eval.Cmax = std::max(eval.Cmax, order.completionTime);
+        eval.Csum += order.completionTime;
+        eval.Lmax = std::max(eval.Lmax, order.lateness);
+        auto T = std::max(order.lateness, 0L);
+        eval.Tsum += T;
+        eval.Usum += T > 0 ? 1 : 0;
+    }
+
     return eval;
 }
 

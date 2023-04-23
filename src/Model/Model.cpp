@@ -94,7 +94,9 @@ Model createRandomModel()
     for (uint orderI = 0; orderI < numOfOrders; ++orderI)
     {
         Order order{
-            .priority = randBtw(minPriority, maxPriority)};
+            .priority = randBtw(minPriority, maxPriority),
+            .completionTime = 0,
+            .lateness = 0};
         const uint numOfProductsPerOrder = randBtw(minNumOfProductsPerOrder, maxNumOfProductsPerOrder);
         uint amountCounter = 0;
         for (uint prodI = 0; prodI < numOfProductsPerOrder; ++prodI)
