@@ -28,3 +28,9 @@ Must be modelled:
 - Scheduling and optimization based on multiple objectives.
 - Simulation.
 - Report the changes over time.
+
+
+What does a model handler do?
+- Advances time
+- Records events
+- Receives orders

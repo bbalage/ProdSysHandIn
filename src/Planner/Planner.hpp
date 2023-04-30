@@ -21,13 +21,18 @@ public:
     Planner(Planner &&other) = default;
     Planner &operator=(Planner &&other) = default;
 
-    virtual Plan plan(const Model &model, const ModelState &modelState) const = 0;
+    virtual Plan plan(const Model &model, const ModelState &modelState, const std::vector<Order> &newOrders, long t_ref) const = 0;
 };
 
 class PlannerSimple : public Planner
 {
 public:
-    Plan plan(const Model &model, const ModelState &modelState) const override;
+    PlannerSimple(long t_frozen) : m_t_frozen{t_frozen} {}
+
+    Plan plan(const Model &model, const ModelState &modelState, const std::vector<Order> &newOrders, long t_ref) const override;
+
+private:
+    long m_t_frozen;
 };
 
 #endif
