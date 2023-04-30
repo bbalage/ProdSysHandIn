@@ -59,8 +59,6 @@ struct WSOpLog
 struct Workstation
 {
     uint type;
-
-    std::vector<WSOpLog> opLogs;
 };
 
 struct Order
@@ -103,13 +101,18 @@ struct Model
     std::vector<Material> materials;
     std::vector<Product> products;
     std::vector<TechPlan> techPlans;
-    std::vector<Order> orders;
-
-    std::vector<Job> jobs;
 
     std::map<wt_t, std::vector<i_t>> workstationTypeMap;
 };
 
-Model createRandomModel();
+struct ModelState
+{
+    std::vector<Job> jobs;
+    std::vector<Order> orders;
+    std::vector<std::vector<WSOpLog>> wsOpLogs;
+};
+
+Model generateRandomModel();
+std::vector<Order> generateOrders(uint numberOfOrders, uint numberOfProducts);
 
 #endif

@@ -14,18 +14,20 @@ int main(int argc, char **argv)
     srand(time(0));
 
     // Build model
-    auto model = createRandomModel();
+    auto model = generateRandomModel();
+    ModelState mstate{.orders = generateOrders(5, model.products.size()),
+                      .wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size())};
 
     // Plan
     PlannerSimple planner;
-    Plan plan = planner.plan(model);
+    Plan plan = planner.plan(model, mstate);
 
     // Simulate
     SimulatorSimple simulator;
-    simulator.simulate(model, plan);
+    simulator.simulate(model, mstate, plan);
 
     // Evaluate
-    Eval eval = evaluate(model);
+    Eval eval = analyse(model, mstate);
 
     // Output
     print_eval(eval);

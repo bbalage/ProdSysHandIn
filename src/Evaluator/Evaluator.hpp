@@ -13,7 +13,16 @@ struct Eval
     long Usum; // number of late jobs
 };
 
-Eval evaluate(const Model &model)
+struct EvalWeights
+{
+    double wCmax;
+    double wCsum;
+    double wLmax;
+    double wTsum;
+    double wUsum;
+};
+
+Eval analyse(const Model &model, const ModelState &modelState)
 {
     Eval eval{
         .Cmax = std::numeric_limits<long>::min(),
@@ -21,7 +30,7 @@ Eval evaluate(const Model &model)
         .Lmax = std::numeric_limits<long>::min(),
         .Tsum = 0,
         .Usum = 0};
-    for (const Order &order : model.orders)
+    for (const Order &order : modelState.orders)
     {
         eval.Cmax = std::max(eval.Cmax, order.completionTime);
         eval.Csum += order.completionTime;
@@ -33,5 +42,21 @@ Eval evaluate(const Model &model)
 
     return eval;
 }
+
+class Evaluator
+{
+public:
+    Evaluator(EvalWeights evalWeights) : m_evalWeights{evalWeights} {}
+    ~Evaluator() {}
+    Evaluator(const Evaluator &other) = delete;
+    Evaluator &operator=(const Evaluator &other) = delete;
+    Evaluator(Evaluator &&other) = default;
+    Evaluator &operator=(Evaluator &&other) = default;
+
+    double targetF(const Eval &x, const Eval &y) const;
+
+private:
+    EvalWeights m_evalWeights;
+};
 
 #endif

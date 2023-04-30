@@ -21,13 +21,13 @@ public:
     Planner(Planner &&other) = default;
     Planner &operator=(Planner &&other) = default;
 
-    virtual Plan plan(const Model &model) const = 0;
+    virtual Plan plan(const Model &model, const ModelState &modelState) const = 0;
 };
 
 class PlannerSimple : public Planner
 {
 public:
-    Plan plan(const Model &model) const override;
+    Plan plan(const Model &model, const ModelState &modelState) const override;
 };
 
 #endif

@@ -1,14 +1,14 @@
 #include "Planner.hpp"
 
-Plan PlannerSimple::plan(const Model &model) const
+Plan PlannerSimple::plan(const Model &model, const ModelState &modelState) const
 {
     Plan plan{
         .invalid = false};
 
     // Create jobs from orders
-    for (i_t orI = 0; orI < model.orders.size(); ++orI)
+    for (i_t orI = 0; orI < modelState.orders.size(); ++orI)
     {
-        const auto &order = model.orders[orI];
+        const auto &order = modelState.orders[orI];
         for (const auto &orderedProd : order.products)
         {
             for (uint amI = 0; amI < orderedProd.amount; ++amI)

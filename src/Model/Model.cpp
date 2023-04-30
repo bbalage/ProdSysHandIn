@@ -1,7 +1,7 @@
 #include "Model.hpp"
 #include <stdexcept>
 
-Model createRandomModel()
+Model generateRandomModel()
 {
     Model model;
 
@@ -80,6 +80,11 @@ Model createRandomModel()
         }
     }
 
+    return model;
+}
+
+std::vector<Order> generateOrders(uint numberOfOrders, uint numberOfProducts)
+{
     // Generate orders
     constexpr uint minNumOfProductsPerOrder = 1;
     constexpr uint maxNumOfProductsPerOrder = 10;
@@ -90,6 +95,7 @@ Model createRandomModel()
     constexpr uint minDueMultiplier = 10;
     constexpr uint maxDueMultiplier = 100;
     constexpr uint numOfOrders = 5;
+    std::vector<Order> orders;
 
     for (uint orderI = 0; orderI < numOfOrders; ++orderI)
     {
@@ -104,12 +110,12 @@ Model createRandomModel()
             auto amount = randBtw(minAmountPerProduct, maxAmountPerProduct);
             amountCounter += amount;
             order.products.push_back(ThingAndAmount{
-                .thing = randBtw(0, numOfProducts),
+                .thing = randBtw(0, numberOfProducts),
                 .amount = amount});
         }
         order.due = amountCounter * randBtw(minDueMultiplier, maxDueMultiplier);
-        model.orders.push_back(std::move(order));
+        orders.push_back(std::move(order));
     }
 
-    return model;
+    return orders;
 }

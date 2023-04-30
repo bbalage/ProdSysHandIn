@@ -1,6 +1,6 @@
 #include "Simulator.hpp"
 
-void SimulatorSimple::simulate(Model &model, Plan &plan, long t_ref)
+void SimulatorSimple::simulate(const Model &model, ModelState &modelState, Plan &plan, long t_ref)
 {
     const auto &sch = plan.sch_matrix;
     auto &jobs = plan.jobs;
@@ -18,8 +18,8 @@ void SimulatorSimple::simulate(Model &model, Plan &plan, long t_ref)
             const auto &jobOp = sch[wsI][nextJobs[wsI]];
             Job &job = jobs[jobOp.job];
             const auto &op = model.techPlans[job.techPlan].operations[jobOp.op];
-            Workstation &ws = model.workstations[wsI];
-            long ref = ws.opLogs.size() == 0 ? t_ref : ws.opLogs[ws.opLogs.size() - 1].endTime;
+            auto &wsops = modelState.wsOpLogs[wsI];
+            long ref = wsops.size() == 0 ? t_ref : wsops[wsops.size() - 1].endTime;
             auto &opLog = job.opLogs[jobOp.op];
 
             // Job operation is launchable if all its previous operations had been finished
@@ -37,7 +37,7 @@ void SimulatorSimple::simulate(Model &model, Plan &plan, long t_ref)
                 continue;
             opLog.endTime = opLog.startTime + op.time;
             opLog.finished = true;
-            ws.opLogs.push_back(WSOpLog{
+            wsops.push_back(WSOpLog{
                 .startTime = opLog.startTime,
                 .endTime = opLog.endTime,
                 .job = jobOp.job,
@@ -46,7 +46,7 @@ void SimulatorSimple::simulate(Model &model, Plan &plan, long t_ref)
             // Update the order's completion time. If one of the order's operations finish after the
             // current completion time, then the order's completion time should be set to the operation's
             // completion time.
-            Order &order = model.orders[job.order];
+            Order &order = modelState.orders[job.order];
             order.completionTime = std::max(order.completionTime, opLog.endTime);
 
             couldLaunchAtLeastOneJob = true;
@@ -65,7 +65,7 @@ void SimulatorSimple::simulate(Model &model, Plan &plan, long t_ref)
     if (plan.invalid)
         return;
 
-    for (Order &order : model.orders)
+    for (Order &order : modelState.orders)
     {
         order.lateness = order.completionTime - order.due;
     }
