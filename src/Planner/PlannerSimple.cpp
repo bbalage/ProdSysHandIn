@@ -2,10 +2,15 @@
 
 Plan PlannerSimple::plan(const Model &model, const ModelState &modelState, const std::vector<Order> &newOrders, long t_ref) const
 {
+    // 2 requirements (TODO):
+    // - new orders in time
+    // - planning given a base plan...
+
     Plan plan{
         .invalid = false};
 
     // Create jobs from orders
+
     for (i_t orI = 0; orI < newOrders.size(); ++orI)
     {
         const auto &order = newOrders[orI];
@@ -31,6 +36,10 @@ Plan PlannerSimple::plan(const Model &model, const ModelState &modelState, const
             }
         }
     }
+
+    // Find out which jobs can be reordered
+    // 1. For each row of the wsOpLogs matrix, get the last job that can be reordered
+    // 2. Preload the schedule matrix
 
     // Create schedule matrix from jobs
 

@@ -107,6 +107,7 @@ struct Model
 
 struct ModelState
 {
+    long t_cur;
     std::vector<Job> jobs;
     std::vector<Order> orders;
     std::vector<std::vector<WSOpLog>> wsOpLogs;
