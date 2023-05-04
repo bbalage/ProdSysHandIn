@@ -22,26 +22,7 @@ struct EvalWeights
     double wUsum;
 };
 
-Eval analyse(const Model &model, const ModelState &modelState)
-{
-    Eval eval{
-        .Cmax = std::numeric_limits<long>::min(),
-        .Csum = 0,
-        .Lmax = std::numeric_limits<long>::min(),
-        .Tsum = 0,
-        .Usum = 0};
-    for (const Order &order : modelState.orders)
-    {
-        eval.Cmax = std::max(eval.Cmax, order.completionTime);
-        eval.Csum += order.completionTime;
-        eval.Lmax = std::max(eval.Lmax, order.lateness);
-        auto T = std::max(order.lateness, 0L);
-        eval.Tsum += T;
-        eval.Usum += T > 0 ? 1 : 0;
-    }
-
-    return eval;
-}
+Eval analyse(const Model &model, const ModelState &modelState);
 
 class Evaluator
 {

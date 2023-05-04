@@ -9,7 +9,7 @@ struct Plan
     // Mutation 3: Change order on the workstations
     std::vector<std::vector<JobOp>> sch_matrix;
     // Mutation 1: Change tech plans
-    // std::vector<i_t> techPlans;
+    std::vector<i_t> techPlans;
     // Mutation 2: Change workstations
     std::vector<Job> jobs;
     bool invalid;

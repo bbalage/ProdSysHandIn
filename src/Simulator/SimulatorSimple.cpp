@@ -1,9 +1,10 @@
 #include "Simulator.hpp"
 
-void SimulatorSimple::simulate(const Model &model, ModelState &modelState, Plan &plan, long t_ref)
+ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_modelState, Plan &plan, long t_ref)
 {
     const auto &sch = plan.sch_matrix;
     auto &jobs = plan.jobs;
+    ModelState modelState = in_modelState;
     std::vector<i_t> nextJobs(sch.size(), 0);
     while (true)
     {
@@ -63,11 +64,11 @@ void SimulatorSimple::simulate(const Model &model, ModelState &modelState, Plan 
         }
     }
     if (plan.invalid)
-        return;
+        return modelState;
 
     for (Order &order : modelState.orders)
     {
         order.lateness = order.completionTime - order.due;
     }
-    return;
+    return modelState;
 }

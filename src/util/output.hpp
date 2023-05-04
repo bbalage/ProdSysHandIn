@@ -5,7 +5,7 @@
 
 #include "../Evaluator/Evaluator.hpp"
 
-void print_eval(const Eval &eval)
+inline void print_eval(const Eval &eval)
 {
     std::cout << "Performance report:\n"
               << "Cmax: " << eval.Cmax << "\n"

@@ -22,31 +22,37 @@ public:
     virtual void optimize(const Model &model,
                           const ModelState &modelState,
                           Plan &plan,
+                          ModelState &out_modelState,
+                          Eval &out_eval,
                           long t_ref) const = 0;
 };
 
 class OptimizerLocalSearch : public Optimizer
 {
 public:
-    OptimizerLocalSearch(std::unique_ptr<Simulator> simulator,
-                         std::unique_ptr<Evaluator> evaluator,
+    OptimizerLocalSearch(Simulator &simulator,
+                         Evaluator &evaluator,
                          uint steps,
                          uint loops)
-        : m_sim{std::move(simulator)},
-          m_eval{std::move(evaluator)},
+        : m_sim{simulator},
+          m_eval{evaluator},
           m_steps{steps},
           m_loops{loops} {}
 
     void optimize(const Model &model,
                   const ModelState &modelState,
                   Plan &plan,
+                  ModelState &out_modelState,
+                  Eval &out_eval,
                   long t_ref) const override;
 
 private:
-    std::unique_ptr<Simulator> m_sim;
-    std::unique_ptr<Evaluator> m_eval;
+    Simulator &m_sim;
+    Evaluator &m_eval;
     uint m_steps;
     uint m_loops;
 };
+
+Plan mutate(const Plan &plan_0);
 
 #endif
