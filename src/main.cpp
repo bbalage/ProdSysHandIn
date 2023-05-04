@@ -6,6 +6,7 @@
 #include "Evaluator/Evaluator.hpp"
 #include "util/output.hpp"
 #include "Model/Model.hpp"
+#include "Model/ModelHandler.hpp"
 #include "Optimizer/Optimizer.hpp"
 
 int main(int argc, char **argv)
@@ -24,33 +25,39 @@ int main(int argc, char **argv)
                                     .wTsum = 1,
                                     .wUsum = 100});
     OptimizerLocalSearch optimizer(simulator, evaluator, 100, 100);
-    auto model = generateRandomModel();
     long t_ref = 0;
 
-    ModelState mstate{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size())};
+    ModelHandler mhandler(
+        planner, optimizer, generateRandomModel(), t_ref);
+    const Model &model = mhandler.model();
 
     // Receive order...
     // e2e test:
-    // generate 2 orders
+    // generate 5 orders
     auto orders = generateOrders(5, model.products.size());
+    mhandler.addOrders(orders);
+
     // Plan, simulate
-    Plan plan = planner.plan(model, mstate, orders, t_ref);
-    mstate.orders = orders;
-    ModelState n_mstate = simulator.simulate(model, mstate, plan);
 
     // advance time
     // generate 3 more orders
     // advance time
 
-    // Evaluate
-    Eval eval = analyse(model, n_mstate);
-
     // Output
-    std::cout << "Before: " << std::endl;
-    print_eval(eval);
+    // std::cout << "Before: " << std::endl;
+    // print_gantt(n_mstate);
+    // print_eval(eval);
 
-    optimizer.optimize(model, mstate, plan, n_mstate, eval, t_ref);
+    // optimizer.optimize(model, mstate, plan, n_mstate, eval, t_ref);
 
-    std::cout << "After: " << std::endl;
-    print_eval(eval);
+    // std::cout << "After: " << std::endl;
+    // print_gantt(n_mstate);
+    // print_eval(eval);
+
+    // Planning model:
+    // - Given a state of the model new orders arrive
+    // - Create a plan based on the current state
+    // - Optimize the new plan
+    // - Install new plan
+    // - Advance time
 }

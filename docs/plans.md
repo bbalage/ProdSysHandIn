@@ -34,3 +34,6 @@ What does a model handler do?
 - Advances time
 - Records events
 - Receives orders
+
+What must be shown by a graphicon:
+- Material storage changes in time.
