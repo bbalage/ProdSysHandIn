@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     long t_ref = 0;
 
     ModelHandler mhandler(
-        planner, optimizer, generateRandomModel(), t_ref);
+        planner, simulator, optimizer, generateRandomModel(), t_ref);
     const Model &model = mhandler.model();
 
     // Receive order...

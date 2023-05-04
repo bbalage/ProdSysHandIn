@@ -15,14 +15,17 @@ class ModelHandler
 public:
     ModelHandler(
         Planner &planner,
+        Simulator &simulator,
         Optimizer &optimizer,
         Model model,
         long t_ref = 0L) : m_planner{planner},
+                           m_simulator{simulator},
                            m_optimizer{optimizer},
                            m_model{model},
                            m_t_cur{t_ref},
                            m_mstate{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size())}
     {
+        m_mstate.plan.sch_matrix.resize(model.workstations.size(), std::vector<JobOp>());
     }
     ~ModelHandler() {}
     ModelHandler(const ModelHandler &other) = delete;
@@ -39,6 +42,7 @@ public:
 
 private:
     Planner &m_planner;
+    Simulator &m_simulator;
     Optimizer &m_optimizer;
 
     Model m_model;

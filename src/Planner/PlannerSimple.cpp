@@ -1,19 +1,19 @@
 #include "Planner.hpp"
 
-Plan PlannerSimple::plan(const Model &model, const ModelState &modelState, const std::vector<Order> &newOrders, long t_ref) const
+Plan PlannerSimple::plan(const Model &model, const ModelState &modelState, i_t newOrdersI, long t_ref) const
 {
     // 2 requirements (TODO):
     // - new orders in time
     // - planning given a base plan...
 
-    Plan plan{
-        .invalid = false};
+    Plan plan = modelState.plan;
+    const auto oldNumberOfJobs = plan.jobs.size();
 
     // Create jobs from orders
 
-    for (i_t orI = 0; orI < newOrders.size(); ++orI)
+    for (i_t orI = newOrdersI; orI < modelState.orders.size(); ++orI)
     {
-        const auto &order = newOrders[orI];
+        const auto &order = modelState.orders[orI];
         for (const auto &orderedProd : order.products)
         {
             for (uint amI = 0; amI < orderedProd.amount; ++amI)
@@ -43,9 +43,8 @@ Plan PlannerSimple::plan(const Model &model, const ModelState &modelState, const
 
     // Create schedule matrix from jobs
 
-    plan.sch_matrix.resize(model.workstations.size(), std::vector<JobOp>());
     std::vector<i_t> workstationTypeCounters(model.workstationTypes, 0);
-    for (i_t jI = 0; jI < plan.jobs.size(); ++jI)
+    for (i_t jI = oldNumberOfJobs; jI < plan.jobs.size(); ++jI)
     {
         i_t tpI = plan.jobs[jI].techPlan;
         const auto &tp = model.techPlans[tpI];
