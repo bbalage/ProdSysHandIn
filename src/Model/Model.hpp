@@ -20,7 +20,7 @@ struct ThingAndAmount
 
 struct Material
 {
-    uint amount;
+    // Name for example...
 };
 
 struct Operation
@@ -61,15 +61,18 @@ struct Workstation
     uint type;
 };
 
+struct OrderLog
+{
+    // std::vector<ThingAndAmount> completionAmount; // TODO: something like this
+    long completionTime;
+    long lateness;
+};
+
 struct Order
 {
     std::vector<ThingAndAmount> products;
     uint priority;
     long due;
-
-    // std::vector<ThingAndAmount> completionAmount; // TODO: something like this
-    long completionTime;
-    long lateness;
 };
 
 struct JobOpLog
@@ -111,19 +114,19 @@ struct Plan
     // Mutation 3: Change order on the workstations
     std::vector<std::vector<JobOp>> sch_matrix;
     // Mutation 1: Change tech plans
-    std::vector<i_t> techPlans;
+    // std::vector<i_t> techPlans;
     // Mutation 2: Change workstations
+    std::vector<Order> orders;
     std::vector<Job> jobs;
+    std::vector<std::pair<i_t, i_t>> jobsFromToPerOrder;
     bool invalid;
 };
 
 struct ModelState
 {
-    long t_cur;
-    std::vector<Order> orders;
     std::vector<std::vector<WSOpLog>> wsOpLogs;
-
-    Plan plan;
+    std::vector<ThingAndAmount> materials;
+    std::vector<OrderLog> orderLogs;
 };
 
 Model generateRandomModel();

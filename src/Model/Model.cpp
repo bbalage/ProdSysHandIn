@@ -27,8 +27,7 @@ Model generateRandomModel()
     constexpr uint numOfRawMaterials = 5;
     for (uint i = 0; i < numOfRawMaterials; ++i)
     {
-        model.materials.push_back(Material{
-            .amount = 0U});
+        model.materials.push_back(Material{});
     }
 
     // Generate products
@@ -100,9 +99,7 @@ std::vector<Order> generateOrders(uint numberOfOrders, uint numberOfProducts)
     for (uint orderI = 0; orderI < numOfOrders; ++orderI)
     {
         Order order{
-            .priority = randBtw(minPriority, maxPriority),
-            .completionTime = 0,
-            .lateness = 0};
+            .priority = randBtw(minPriority, maxPriority)};
         const uint numOfProductsPerOrder = randBtw(minNumOfProductsPerOrder, maxNumOfProductsPerOrder);
         uint amountCounter = 0;
         for (uint prodI = 0; prodI < numOfProductsPerOrder; ++prodI)

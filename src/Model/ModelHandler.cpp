@@ -3,11 +3,10 @@
 void ModelHandler::addOrders(std::vector<Order> orders)
 {
     // Add new orders
-    ModelState mstate = m_mstate;
-    mstate.orders.insert(mstate.orders.end(), orders.begin(), orders.end());
+    const ModelState &mstate = m_mstate_current;
 
     // Create plan
-    Plan plan = m_planner.plan(m_model, mstate, m_mstate.orders.size(), m_t_cur);
+    Plan plan = m_planner.plan(m_model, mstate, m_plan, orders, m_t_cur);
 
     // Optimize the plan
     ModelState sim_mstate = m_simulator.simulate(m_model, mstate, plan, m_t_cur);
@@ -15,17 +14,19 @@ void ModelHandler::addOrders(std::vector<Order> orders)
     std::cout << "Before optimization:" << std::endl;
     print_eval(eval);
 
-    m_optimizer.optimize(m_model, mstate, plan, mstate, eval, m_t_cur);
+    ModelState out_mstate;
+    m_optimizer.optimize(m_model, mstate, plan, out_mstate, eval, m_t_cur);
 
     std::cout << "After optimization:" << std::endl;
     print_eval(eval);
 
     // Accept the new plan and state
-    m_mstate = mstate;
-    m_mstate.plan = plan;
+    m_mstate_predicted = out_mstate;
+    m_plan = plan;
 }
 
 void ModelHandler::advanceTime(long t_adv)
 {
     auto n_cur = m_t_cur + t_adv;
+    std::vector<i_t> completedOrders;
 }

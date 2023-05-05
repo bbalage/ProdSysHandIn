@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     // Initialize
     // std::mt19937 rng(time(0));
     srand(time(0));
-    constexpr long t_frozen = 10;
+    constexpr long t_frozen = 60;
 
     // Build model
     PlannerSimple planner(t_frozen);
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
                                     .wTsum = 1,
                                     .wUsum = 100});
     OptimizerLocalSearch optimizer(simulator, evaluator, 100, 100);
-    long t_ref = 0;
+    long t_ref = 1440;
 
     ModelHandler mhandler(
         planner, simulator, optimizer, generateRandomModel(), t_ref);

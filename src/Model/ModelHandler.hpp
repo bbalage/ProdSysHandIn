@@ -23,9 +23,10 @@ public:
                            m_optimizer{optimizer},
                            m_model{model},
                            m_t_cur{t_ref},
-                           m_mstate{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size())}
+                           m_mstate_current{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size())},
+                           m_mstate_predicted{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size())}
     {
-        m_mstate.plan.sch_matrix.resize(model.workstations.size(), std::vector<JobOp>());
+        m_plan.sch_matrix.resize(model.workstations.size(), std::vector<JobOp>());
     }
     ~ModelHandler() {}
     ModelHandler(const ModelHandler &other) = delete;
@@ -38,7 +39,8 @@ public:
 
     const auto &t_cur() const { return m_t_cur; }
     const auto &model() const { return m_model; }
-    const auto &mstate() const { return m_mstate; }
+    const auto &mstate_current() const { return m_mstate_current; }
+    const auto &mstate_predicted() const { return m_mstate_predicted; }
 
 private:
     Planner &m_planner;
@@ -48,7 +50,9 @@ private:
     Model m_model;
     long m_t_cur;
 
-    ModelState m_mstate;
+    ModelState m_mstate_current;
+    ModelState m_mstate_predicted;
+    Plan m_plan{.invalid = false};
 };
 
 #endif

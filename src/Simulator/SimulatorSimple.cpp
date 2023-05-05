@@ -1,10 +1,16 @@
 #include "Simulator.hpp"
+#include <stdexcept>
 
+// TODO: This function has got pretty crazy. Refactor!
 ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_modelState, Plan &plan, long t_ref)
 {
     const auto &sch = plan.sch_matrix;
     auto &jobs = plan.jobs;
-    ModelState modelState = in_modelState;
+    ModelState modelState{
+        .wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size()),
+        .materials = in_modelState.materials,
+        .orderLogs = std::vector<OrderLog>(plan.orders.size(), OrderLog{.completionTime = 0,
+                                                                        .lateness = 0})};
     std::vector<i_t> nextJobs(sch.size(), 0);
     while (true)
     {
@@ -18,10 +24,11 @@ ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_mo
             allJobsCompleted = false;
             const auto &jobOp = sch[wsI][nextJobs[wsI]];
             Job &job = jobs[jobOp.job];
+            auto &opLog = job.opLogs[jobOp.op];
+
             const auto &op = model.techPlans[job.techPlan].operations[jobOp.op];
             auto &wsops = modelState.wsOpLogs[wsI];
             long ref = wsops.size() == 0 ? t_ref : wsops[wsops.size() - 1].endTime;
-            auto &opLog = job.opLogs[jobOp.op];
 
             // Job operation is launchable if all its previous operations had been finished
             // If the workstation can launch the job, then launch it
@@ -47,8 +54,8 @@ ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_mo
             // Update the order's completion time. If one of the order's operations finish after the
             // current completion time, then the order's completion time should be set to the operation's
             // completion time.
-            Order &order = modelState.orders[job.order];
-            order.completionTime = std::max(order.completionTime, opLog.endTime);
+            OrderLog &orderLog = modelState.orderLogs[job.order];
+            orderLog.completionTime = std::max(orderLog.completionTime, opLog.endTime);
 
             couldLaunchAtLeastOneJob = true;
             nextJobs[wsI]++;
@@ -59,16 +66,15 @@ ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_mo
         }
         if (!couldLaunchAtLeastOneJob)
         {
-            plan.invalid = true;
-            break;
+            throw std::invalid_argument("Plan cannot be executed.");
         }
     }
-    if (plan.invalid)
-        return modelState;
 
-    for (Order &order : modelState.orders)
+    for (i_t orI = 0; orI < modelState.orderLogs.size(); ++orI)
     {
-        order.lateness = order.completionTime - order.due;
+        OrderLog &orderLog = modelState.orderLogs[orI];
+        const Order &order = plan.orders[orI];
+        orderLog.lateness = orderLog.completionTime - order.due;
     }
     return modelState;
 }

@@ -7,7 +7,6 @@ void OptimizerLocalSearch::optimize(const Model &model,
                                     Eval &out_eval,
                                     long t_ref) const
 {
-    ModelState modelState = in_modelState;
     Plan plan_0 = inout_plan;    // start base
     Plan plan_best = inout_plan; // best solution of the search
     Plan plan_actual;            // actual
@@ -20,7 +19,7 @@ void OptimizerLocalSearch::optimize(const Model &model,
     Eval eval_actual;
     Eval eval_extension;
 
-    ModelState mstate_0 = m_sim.simulate(model, modelState, plan_0, t_ref);
+    ModelState mstate_0 = m_sim.simulate(model, in_modelState, plan_0, t_ref);
     ModelState mstate_best = mstate_0;
     eval_best = analyse(model, mstate_0);
 
@@ -29,7 +28,7 @@ void OptimizerLocalSearch::optimize(const Model &model,
         for (uint loop = 1; loop <= m_loops; ++loop)
         {
             plan_actual = mutate(plan_0);
-            mstate_actual = m_sim.simulate(model, modelState, plan_actual, t_ref);
+            mstate_actual = m_sim.simulate(model, in_modelState, plan_actual, t_ref);
             eval_actual = analyse(model, mstate_actual);
             if (loop == 1 || m_eval.targetF(eval_extension, eval_actual) < 0.0)
             {

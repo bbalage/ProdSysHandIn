@@ -8,12 +8,12 @@ Eval analyse(const Model &model, const ModelState &modelState)
         .Lmax = std::numeric_limits<long>::min(),
         .Tsum = 0,
         .Usum = 0};
-    for (const Order &order : modelState.orders)
+    for (const OrderLog &orderLog : modelState.orderLogs)
     {
-        eval.Cmax = std::max(eval.Cmax, order.completionTime);
-        eval.Csum += order.completionTime;
-        eval.Lmax = std::max(eval.Lmax, order.lateness);
-        auto T = std::max(order.lateness, 0L);
+        eval.Cmax = std::max(eval.Cmax, orderLog.completionTime);
+        eval.Csum += orderLog.completionTime;
+        eval.Lmax = std::max(eval.Lmax, orderLog.lateness);
+        auto T = std::max(orderLog.lateness, 0L);
         eval.Tsum += T;
         eval.Usum += T > 0 ? 1 : 0;
     }

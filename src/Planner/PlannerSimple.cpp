@@ -1,19 +1,24 @@
 #include "Planner.hpp"
 
-Plan PlannerSimple::plan(const Model &model, const ModelState &modelState, i_t newOrdersI, long t_ref) const
+Plan PlannerSimple::plan(const Model &model,
+                         const ModelState &modelState,
+                         const Plan &oldPlan,
+                         const std::vector<Order> &newOrders,
+                         long t_ref) const
 {
     // 2 requirements (TODO):
     // - new orders in time
     // - planning given a base plan...
 
-    Plan plan = modelState.plan;
+    Plan plan = oldPlan;
     const auto oldNumberOfJobs = plan.jobs.size();
+    plan.orders.insert(plan.orders.end(), newOrders.begin(), newOrders.end());
 
     // Create jobs from orders
 
-    for (i_t orI = newOrdersI; orI < modelState.orders.size(); ++orI)
+    for (i_t orI = oldPlan.orders.size(); orI < plan.orders.size(); ++orI)
     {
-        const auto &order = modelState.orders[orI];
+        const auto &order = plan.orders[orI];
         for (const auto &orderedProd : order.products)
         {
             for (uint amI = 0; amI < orderedProd.amount; ++amI)
