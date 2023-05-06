@@ -116,3 +116,43 @@ std::vector<Order> generateOrders(uint numberOfOrders, uint numberOfProducts)
 
     return orders;
 }
+
+ModelState ModelState::copyBeforeTime(long t_time) const
+{
+    ModelState new_mstate{
+        .materials = materials,
+        .orderLogs = std::vector<OrderLog>(orderLogs.size(), OrderLog{.completionTime = 0,
+                                                                      .lateness = 0})};
+    for (i_t jobI = 0; jobI < jobOpLogs.size(); ++jobI)
+        new_mstate.jobOpLogs[jobI].resize(
+            jobOpLogs[jobI].size(), JobOpLog{
+                                        .startTime = 0,
+                                        .endTime = 0,
+                                        .finished = false});
+    for (size_t jI = 0; jI < jobOpLogs.size(); ++jI)
+    {
+        const auto &jobLogs = jobOpLogs[jI];
+        for (size_t opI = 0; opI < jobLogs.size(); ++opI)
+        {
+            const JobOpLog &jobOpLog = jobLogs[opI];
+            if (jobOpLog.startTime <= t_time)
+            {
+                new_mstate.jobOpLogs[jI][opI] = jobOpLog;
+                new_mstate.jobOpLogs[jI][opI].finished = true;
+            }
+        }
+    }
+
+    for (size_t wsI = 0; wsI < wsOpLogs.size(); ++wsI)
+    {
+        const auto &wsLogs = wsOpLogs[wsI];
+        for (const WSOpLog &wsOpLog : wsLogs)
+        {
+            if (wsOpLog.startTime <= t_time)
+            {
+                new_mstate.wsOpLogs[wsI].push_back(wsOpLog);
+            }
+        }
+    }
+    return new_mstate;
+}

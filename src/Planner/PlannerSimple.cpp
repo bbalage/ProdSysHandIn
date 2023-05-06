@@ -1,9 +1,9 @@
 #include "Planner.hpp"
 
 Plan PlannerSimple::plan(const Model &model,
-                         const ModelState &modelState,
                          const Plan &oldPlan,
                          const std::vector<Order> &newOrders,
+                         ModelState &modelState,
                          long t_ref) const
 {
     // 2 requirements (TODO):
@@ -28,19 +28,15 @@ Plan PlannerSimple::plan(const Model &model,
 
                 // Randomly choose which way to produce the product
                 i_t tpI = randBtw(0, prod.techPlans.size());
-                const TechPlan &tp = model.techPlans[tpI];
                 plan.jobs.push_back(Job{.order = orI,
                                         .product = prodI,
-                                        .techPlan = tpI,
-                                        .opLogs = std::vector<JobOpLog>(
-                                            tp.operations.size(),
-                                            JobOpLog{
-                                                .startTime = 0,
-                                                .endTime = 0,
-                                                .finished = false})});
+                                        .techPlan = tpI});
             }
         }
     }
+    modelState.jobOpLogs.resize(plan.jobs.size());
+    // TODO: CONTINUE HERE
+    // for (size_t i = 0; i < oldPlan.jobs.size(); ++i)
 
     // Find out which jobs can be reordered
     // 1. For each row of the wsOpLogs matrix, get the last job that can be reordered
@@ -51,8 +47,8 @@ Plan PlannerSimple::plan(const Model &model,
     std::vector<i_t> workstationTypeCounters(model.workstationTypes, 0);
     for (i_t jI = oldNumberOfJobs; jI < plan.jobs.size(); ++jI)
     {
-        i_t tpI = plan.jobs[jI].techPlan;
-        const auto &tp = model.techPlans[tpI];
+        Job &job = plan.jobs[jI];
+        const auto &tp = model.techPlans[job.techPlan];
         for (i_t opI = 0; opI < tp.operations.size(); ++opI)
         {
             const Operation &op = tp.operations[opI];
@@ -63,6 +59,7 @@ Plan PlannerSimple::plan(const Model &model,
             if (counter == wss_of_type.size())
                 counter = 0;
 
+            // job.sch.push_back(WSSchPair{.ws = wsI, .sch = plan.sch_matrix[wsI].size()});
             plan.sch_matrix[wsI].push_back(JobOp{.job = jI, .op = opI});
         }
     }

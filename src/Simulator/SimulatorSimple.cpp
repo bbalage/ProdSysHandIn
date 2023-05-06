@@ -2,15 +2,16 @@
 #include <stdexcept>
 
 // TODO: This function has got pretty crazy. Refactor!
-ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_modelState, Plan &plan, long t_ref)
+ModelState SimulatorSimple::simulate(const Model &model,
+                                     const ModelState &in_modelState,
+                                     const Plan &plan,
+                                     long t_ref)
 {
     const auto &sch = plan.sch_matrix;
     auto &jobs = plan.jobs;
-    ModelState modelState{
-        .wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size()),
-        .materials = in_modelState.materials,
-        .orderLogs = std::vector<OrderLog>(plan.orders.size(), OrderLog{.completionTime = 0,
-                                                                        .lateness = 0})};
+
+    ModelState modelState = in_modelState.copyBeforeTime(t_ref);
+
     std::vector<i_t> nextJobs(sch.size(), 0);
     while (true)
     {
@@ -21,10 +22,15 @@ ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_mo
             // If there is not any queued jobs for this workstation, continue with next one.
             if (nextJobs[wsI] >= sch[wsI].size())
                 continue;
+            couldLaunchAtLeastOneJob = true;
+            nextJobs[wsI]++;
             allJobsCompleted = false;
+
             const auto &jobOp = sch[wsI][nextJobs[wsI]];
-            Job &job = jobs[jobOp.job];
-            auto &opLog = job.opLogs[jobOp.op];
+            const Job &job = jobs[jobOp.job];
+            JobOpLog &opLog = modelState.jobOpLogs[jobOp.job][jobOp.op];
+            if (opLog.finished)
+                continue;
 
             const auto &op = model.techPlans[job.techPlan].operations[jobOp.op];
             auto &wsops = modelState.wsOpLogs[wsI];
@@ -37,9 +43,9 @@ ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_mo
             {
                 opLog.startTime = ref;
             }
-            else if (job.opLogs[jobOp.op - 1].finished)
+            else if (modelState.jobOpLogs[jobOp.job][jobOp.op - 1].finished)
             {
-                opLog.startTime = std::max(job.opLogs[jobOp.op - 1].endTime, ref);
+                opLog.startTime = std::max(modelState.jobOpLogs[jobOp.job][jobOp.op - 1].endTime, ref);
             }
             else
                 continue;
@@ -56,9 +62,6 @@ ModelState SimulatorSimple::simulate(const Model &model, const ModelState &in_mo
             // completion time.
             OrderLog &orderLog = modelState.orderLogs[job.order];
             orderLog.completionTime = std::max(orderLog.completionTime, opLog.endTime);
-
-            couldLaunchAtLeastOneJob = true;
-            nextJobs[wsI]++;
         }
         if (allJobsCompleted)
         {

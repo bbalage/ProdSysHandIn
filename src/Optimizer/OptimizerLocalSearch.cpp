@@ -1,4 +1,5 @@
 #include "Optimizer.hpp"
+#include <algorithm>
 
 void OptimizerLocalSearch::optimize(const Model &model,
                                     const ModelState &in_modelState,
@@ -27,7 +28,7 @@ void OptimizerLocalSearch::optimize(const Model &model,
     {
         for (uint loop = 1; loop <= m_loops; ++loop)
         {
-            plan_actual = mutate(plan_0);
+            plan_actual = mutate(mstate_0, plan_0, t_ref);
             mstate_actual = m_sim.simulate(model, in_modelState, plan_actual, t_ref);
             eval_actual = analyse(model, mstate_actual);
             if (loop == 1 || m_eval.targetF(eval_extension, eval_actual) < 0.0)
@@ -51,7 +52,7 @@ void OptimizerLocalSearch::optimize(const Model &model,
     out_eval = eval_best;
 }
 
-Plan mutate(const Plan &plan_0)
+Plan mutate(const ModelState &mstate, const Plan &plan_0, long t_ref)
 {
     Plan plan = plan_0;
     // Possible mutations:
@@ -61,15 +62,29 @@ Plan mutate(const Plan &plan_0)
 
     // 3. is implemented here
     const auto wsI = randBtw(0, plan.sch_matrix.size() - 1);
-    auto &wsOps = plan.sch_matrix[wsI];
-    if (wsOps.size() < 2)
+    auto &jobOps = plan.sch_matrix[wsI];
+    if (jobOps.size() < 2)
         return plan;
-    auto op1I = randBtw(0, wsOps.size() - 2);
-    auto op2I = randBtw(0, wsOps.size() - 2);
+    const auto &it = std::lower_bound(jobOps.begin(), jobOps.end(), t_ref, [&mstate](const JobOp &jobOp, long t_ref)
+                                      { return mstate.jobOpLogs[jobOp.job][jobOp.op].startTime <= t_ref; });
+    if (it == jobOps.end())
+        return plan;
+    const uint firstI = it - jobOps.begin();
+    if (jobOps.size() - firstI < 2)
+        return plan;
+    auto op1I = randBtw(firstI, jobOps.size() - 2);
+    auto op2I = randBtw(firstI, jobOps.size() - 2);
     if (op2I == op1I)
         return plan;
-    if (wsOps[op1I].job == wsOps[op2I].job)
+    if (jobOps[op1I].job == jobOps[op2I].job)
         return plan;
-    std::swap(wsOps[op1I], wsOps[op2I]);
+    std::swap(jobOps[op1I], jobOps[op2I]);
+
+    // Switch the schedule mappings so it reflects the actual switch
+    // auto jOpI1 = wsOps[op1I].op;
+    // auto jOpI2 = wsOps[op2I].op;
+    // WSSchPair &schMap1 = plan.jobs[wsOps[op1I].job].sch[jOpI1];
+    // WSSchPair &schMap2 = plan.jobs[wsOps[op2I].job].sch[jOpI2];
+    // std::swap(schMap1, schMap2);
     return plan;
 }

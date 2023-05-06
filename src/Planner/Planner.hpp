@@ -14,9 +14,9 @@ public:
     Planner &operator=(Planner &&other) = default;
 
     virtual Plan plan(const Model &model,
-                      const ModelState &modelState,
                       const Plan &oldPlan,
                       const std::vector<Order> &newOrders,
+                      ModelState &modelState,
                       long t_ref) const = 0;
 };
 
@@ -26,9 +26,9 @@ public:
     PlannerSimple(long t_frozen) : m_t_frozen{t_frozen} {}
 
     Plan plan(const Model &model,
-              const ModelState &modelState,
               const Plan &oldPlan,
               const std::vector<Order> &newOrders,
+              ModelState &modelState,
               long t_ref) const override;
 
 private:

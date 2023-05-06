@@ -82,13 +82,19 @@ struct JobOpLog
     bool finished;
 };
 
+struct WSSchPair
+{
+    i_t ws;
+    i_t sch;
+};
+
 struct Job
 {
     i_t order;
     i_t product;
     i_t techPlan;
-
-    std::vector<JobOpLog> opLogs;
+    // Mapping to the place of operations in the schedule matrix.
+    // std::vector<WSSchPair> sch;
 };
 
 struct JobOp
@@ -111,11 +117,11 @@ struct Model
 struct Plan
 {
     // Matrix where rows denote the workstation and columns the job.
-    // Mutation 3: Change order on the workstations
     std::vector<std::vector<JobOp>> sch_matrix;
     // Mutation 1: Change tech plans
     // std::vector<i_t> techPlans;
     // Mutation 2: Change workstations
+    // Mutation 3: Change order on the workstations
     std::vector<Order> orders;
     std::vector<Job> jobs;
     std::vector<std::pair<i_t, i_t>> jobsFromToPerOrder;
@@ -125,8 +131,11 @@ struct Plan
 struct ModelState
 {
     std::vector<std::vector<WSOpLog>> wsOpLogs;
+    std::vector<std::vector<JobOpLog>> jobOpLogs;
     std::vector<ThingAndAmount> materials;
     std::vector<OrderLog> orderLogs;
+
+    ModelState copyBeforeTime(long t_time) const;
 };
 
 Model generateRandomModel();

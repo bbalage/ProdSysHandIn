@@ -53,6 +53,6 @@ private:
     uint m_loops;
 };
 
-Plan mutate(const Plan &plan_0);
+Plan mutate(const ModelState &mstate, const Plan &plan_0, long t_ref);
 
 #endif

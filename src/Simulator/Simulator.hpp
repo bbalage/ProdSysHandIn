@@ -21,7 +21,7 @@ public:
      * @param planner
      * @param t_ref The starting (reference) time of the simulation.
      */
-    virtual ModelState simulate(const Model &model, const ModelState &modelState, Plan &plan, long t_ref) = 0;
+    virtual ModelState simulate(const Model &model, const ModelState &modelState, const Plan &plan, long t_ref) = 0;
 };
 
 class SimulatorSimple : public Simulator
@@ -29,7 +29,7 @@ class SimulatorSimple : public Simulator
 public:
     SimulatorSimple() {}
 
-    ModelState simulate(const Model &model, const ModelState &modelState, Plan &plan, long t_ref = 0) override;
+    ModelState simulate(const Model &model, const ModelState &modelState, const Plan &plan, long t_ref = 0) override;
 };
 
 #endif

@@ -23,8 +23,10 @@ public:
                            m_optimizer{optimizer},
                            m_model{model},
                            m_t_cur{t_ref},
-                           m_mstate_current{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size())},
-                           m_mstate_predicted{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size())}
+                           m_mstate_current{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size()),
+                                            .jobOpLogs = std::vector<std::vector<JobOpLog>>(0)},
+                           m_mstate_predicted{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size()),
+                                              .jobOpLogs = std::vector<std::vector<JobOpLog>>(0)}
     {
         m_plan.sch_matrix.resize(model.workstations.size(), std::vector<JobOp>());
     }
