@@ -1,5 +1,6 @@
 #include "Model.hpp"
 #include <stdexcept>
+#include <array>
 
 Model generateRandomModel()
 {
@@ -10,6 +11,15 @@ Model generateRandomModel()
     constexpr uint maxNumOfWorkstations = 15;
     const uint numWorkstations = randBtw(minNumOfWorkstations, maxNumOfWorkstations);
     constexpr uint workstationsPerTypes = 3;
+    constexpr uint numOfBreakRules = 2;
+    const std::array<WSUnavailableRule, numOfBreakRules> breakRules{{WSUnavailableRule{
+                                                                         .unavailableFreq = 480, // 8 hours
+                                                                         .unavailableLength = 30 // half an hour
+                                                                     },
+                                                                     WSUnavailableRule{
+                                                                         .unavailableFreq = 1440, // a day
+                                                                         .unavailableLength = 30  // half an hour
+                                                                     }}};
     model.workstationTypes = numWorkstations / workstationsPerTypes;
     for (uint i = 0; i < numWorkstations; ++i)
     {
@@ -20,7 +30,8 @@ Model generateRandomModel()
             model.workstationTypeMap[wt_type] = std::vector<i_t>(1, model.workstations.size());
 
         model.workstations.push_back(Workstation{
-            .type = wt_type});
+            .type = wt_type,
+            .breakRule = breakRules[randBtw(0, numOfBreakRules)]});
     }
 
     // Generate raw materials
@@ -45,7 +56,7 @@ Model generateRandomModel()
     constexpr uint minNumOfOpsPerTechPlan = 1;
     constexpr uint maxNumOfOpsPerTechPlan = 5;
     constexpr uint minTimeForOperation = 1;
-    constexpr uint maxTimeForOperation = 100;
+    constexpr uint maxTimeForOperation = 450;
     constexpr uint minNumOfMatPerOp = 1;
     constexpr uint maxNumOfMatPerOp = 20;
 
@@ -158,4 +169,36 @@ ModelState ModelState::copyBeforeTime(long t_time) const
         }
     }
     return new_mstate;
+}
+
+long WSUnavailableRule::nextUnavailable(long t_ref) const
+{
+    auto period = t_ref % unavailableFreq;
+    if (period >= unavailableLength)
+        return t_ref + (unavailableFreq - period);
+    else
+        return t_ref;
+}
+
+long WSUnavailableRule::nextAvailable(long t_ref) const
+{
+    auto period = t_ref % unavailableFreq;
+    if (period < unavailableLength)
+        return t_ref - period + unavailableLength;
+    else
+        return t_ref;
+}
+
+long WSUnavailableRule::nextExecutableWithoutBreak(long t_ref, long t_required) const
+{
+    if (t_required > unavailableFreq - unavailableLength)
+        throw std::invalid_argument("This operation requires too much time on the machine.");
+
+    auto avAt = nextAvailable(t_ref);
+    auto unavAt = nextUnavailable(t_ref);
+    if (unavAt < avAt) // Unavailable now
+        return avAt;
+    if (unavAt - avAt >= t_required)
+        return avAt;
+    return unavAt + unavailableLength;
 }

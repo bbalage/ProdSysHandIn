@@ -35,6 +35,7 @@ ModelState SimulatorSimple::simulate(const Model &model,
             const auto &op = model.techPlans[job.techPlan].operations[jobOp.op];
             auto &wsops = modelState.wsOpLogs[wsI];
             long ref = wsops.size() == 0 ? t_ref : wsops[wsops.size() - 1].endTime;
+            ref = model.workstations[wsI].breakRule.nextExecutableWithoutBreak(ref, op.time);
 
             // Job operation is launchable if all its previous operations had been finished
             // If the workstation can launch the job, then launch it

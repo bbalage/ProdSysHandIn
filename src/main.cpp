@@ -36,8 +36,8 @@ int main(int argc, char **argv)
     // generate 5 orders
     auto orders = generateOrders(5, model.products.size());
     mhandler.addOrders(orders);
-    // orders = generateOrders(2, model.products.size());
-    // mhandler.addOrders(orders);
+    orders = generateOrders(2, model.products.size());
+    mhandler.addOrders(orders);
 
     // Plan, simulate
 

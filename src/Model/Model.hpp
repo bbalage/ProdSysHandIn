@@ -57,9 +57,21 @@ struct WSOpLog
     bool finished;
 };
 
+struct WSUnavailableRule
+{
+    long unavailableFreq = 480;
+    long unavailableLength = 30;
+
+    long nextUnavailable(long t_ref) const;
+    long nextAvailable(long t_ref) const;
+    long nextExecutableWithoutBreak(long t_ref, long t_required) const;
+};
+
 struct Workstation
 {
     uint type;
+
+    WSUnavailableRule breakRule;
 };
 
 struct OrderLog

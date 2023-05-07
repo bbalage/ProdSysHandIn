@@ -21,6 +21,7 @@ void ModelHandler::addOrders(std::vector<Order> orders)
     print_eval(eval);
 
     // Accept the new plan and state
+    m_mstate_current = new_mstate;
     m_mstate_predicted = out_mstate;
     m_plan = new_plan;
 }
@@ -29,6 +30,11 @@ void ModelHandler::advanceTime(long t_adv)
 {
     auto t_cur = m_t_cur + t_adv;
     ModelState newState;
+
+    // 1. Set the current state of the model based on the predicted state
+
+    // 2. Remove old data that has become irrelevant
+
     Plan newPlan{.invalid = false};
     std::vector<i_t> completedOrders;
     for (i_t orI = 0; orI < m_mstate_predicted.orderLogs.size(); ++orI)
@@ -38,29 +44,36 @@ void ModelHandler::advanceTime(long t_adv)
         // If order is already completed, just skip... TODO: create some logs
         if (orderLog.completionTime <= t_cur) // Order is completed
         {
-            continue;
+            completedOrders.push_back(orI);
+            // continue;
         }
 
-        // Copy the order
-        auto new_orI = newPlan.orders.size();
-        newPlan.orders.push_back(m_plan.orders[orI]);
+        // // Copy the order
+        // auto new_orI = newPlan.orders.size();
+        // newPlan.orders.push_back(m_plan.orders[orI]);
 
-        // Copy the order-job mappings
-        auto [old_from, old_to] = m_plan.jobsFromToPerOrder[orI];
-        auto new_from = m_plan.jobs.size();
-        auto new_to = m_plan.jobs.size() + (old_to - old_from);
-        newPlan.jobsFromToPerOrder.push_back(std::make_pair(new_from, new_to));
+        // // Copy the order-job mappings
+        // auto [old_from, old_to] = m_plan.jobsFromToPerOrder[orI];
+        // auto new_from = m_plan.jobs.size();
+        // auto new_to = m_plan.jobs.size() + (old_to - old_from);
+        // newPlan.jobsFromToPerOrder.push_back(std::make_pair(new_from, new_to));
 
-        // Copy the jobs
-        newPlan.jobs.insert(newPlan.jobs.end(), &(m_plan.jobs[old_from]), &(m_plan.jobs[old_to]));
-        for (size_t i = new_from; i < new_to; ++i)
-        {
-            newPlan.jobs[i].order = new_orI;
-        }
+        // // Copy the jobs
+        // newPlan.jobs.insert(newPlan.jobs.end(), &(m_plan.jobs[old_from]), &(m_plan.jobs[old_to]));
+        // for (size_t i = new_from; i < new_to; ++i)
+        // {
+        //     newPlan.jobs[i].order = new_orI;
+        // }
     }
     // Copy schedule matrix
+    std::vector<bool> orderRemovable(m_plan.orders.size(), true);
     for (i_t wsI = 0; wsI < m_model.workstations.size(); ++wsI)
     {
         const auto &wsSch = m_plan.sch_matrix[wsI];
+        for (const JobOp &jobOp : wsSch)
+        {
+            if (m_mstate_predicted.jobOpLogs[jobOp.job][jobOp.op].endTime > t_cur)
+                newPlan.sch_matrix[wsI].push_back(jobOp);
+        }
     }
 }
