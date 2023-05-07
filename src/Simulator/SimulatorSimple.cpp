@@ -12,7 +12,6 @@ ModelState SimulatorSimple::simulate(const Model &model,
 
     ModelState modelState = in_modelState.copyBeforeTime(t_ref);
 
-    std::vector<i_t> nextJobs(sch.size(), 0);
     while (true)
     {
         bool couldLaunchAtLeastOneJob = false;
@@ -20,13 +19,14 @@ ModelState SimulatorSimple::simulate(const Model &model,
         for (size_t wsI = 0; wsI < sch.size(); ++wsI)
         {
             // If there is not any queued jobs for this workstation, continue with next one.
-            if (nextJobs[wsI] >= sch[wsI].size())
+            if (modelState.nextJobsPerWS[wsI] >= sch[wsI].size())
                 continue;
             couldLaunchAtLeastOneJob = true;
-            nextJobs[wsI]++;
             allJobsCompleted = false;
 
-            const auto &jobOp = sch[wsI][nextJobs[wsI]];
+            const auto &jobOp = sch[wsI][modelState.nextJobsPerWS[wsI]];
+            modelState.nextJobsPerWS[wsI]++;
+
             const Job &job = jobs[jobOp.job];
             JobOpLog &opLog = modelState.jobOpLogs[jobOp.job][jobOp.op];
             if (opLog.finished)

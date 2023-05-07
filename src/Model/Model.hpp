@@ -54,6 +54,7 @@ struct WSOpLog
     long endTime;
     i_t job;
     i_t op;
+    bool finished;
 };
 
 struct Workstation
@@ -134,6 +135,7 @@ struct ModelState
     std::vector<std::vector<JobOpLog>> jobOpLogs;
     std::vector<ThingAndAmount> materials;
     std::vector<OrderLog> orderLogs;
+    std::vector<i_t> nextJobsPerWS;
 
     ModelState copyBeforeTime(long t_time) const;
 };

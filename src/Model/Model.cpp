@@ -93,10 +93,9 @@ std::vector<Order> generateOrders(uint numberOfOrders, uint numberOfProducts)
     constexpr uint maxPriority = 100;
     constexpr uint minDueMultiplier = 10;
     constexpr uint maxDueMultiplier = 100;
-    constexpr uint numOfOrders = 5;
     std::vector<Order> orders;
 
-    for (uint orderI = 0; orderI < numOfOrders; ++orderI)
+    for (uint orderI = 0; orderI < numberOfOrders; ++orderI)
     {
         Order order{
             .priority = randBtw(minPriority, maxPriority)};
@@ -122,7 +121,9 @@ ModelState ModelState::copyBeforeTime(long t_time) const
     ModelState new_mstate{
         .materials = materials,
         .orderLogs = std::vector<OrderLog>(orderLogs.size(), OrderLog{.completionTime = 0,
-                                                                      .lateness = 0})};
+                                                                      .lateness = 0}),
+        .nextJobsPerWS = std::vector<i_t>(wsOpLogs.size(), 0)};
+    new_mstate.jobOpLogs.resize(jobOpLogs.size());
     for (i_t jobI = 0; jobI < jobOpLogs.size(); ++jobI)
         new_mstate.jobOpLogs[jobI].resize(
             jobOpLogs[jobI].size(), JobOpLog{
@@ -135,7 +136,7 @@ ModelState ModelState::copyBeforeTime(long t_time) const
         for (size_t opI = 0; opI < jobLogs.size(); ++opI)
         {
             const JobOpLog &jobOpLog = jobLogs[opI];
-            if (jobOpLog.startTime <= t_time)
+            if (jobOpLog.finished && jobOpLog.startTime <= t_time)
             {
                 new_mstate.jobOpLogs[jI][opI] = jobOpLog;
                 new_mstate.jobOpLogs[jI][opI].finished = true;
@@ -143,14 +144,16 @@ ModelState ModelState::copyBeforeTime(long t_time) const
         }
     }
 
+    new_mstate.wsOpLogs.resize(wsOpLogs.size());
     for (size_t wsI = 0; wsI < wsOpLogs.size(); ++wsI)
     {
         const auto &wsLogs = wsOpLogs[wsI];
         for (const WSOpLog &wsOpLog : wsLogs)
         {
-            if (wsOpLog.startTime <= t_time)
+            if (wsOpLog.finished && wsOpLog.startTime <= t_time)
             {
                 new_mstate.wsOpLogs[wsI].push_back(wsOpLog);
+                new_mstate.nextJobsPerWS[wsI]++;
             }
         }
     }

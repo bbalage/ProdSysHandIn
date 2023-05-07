@@ -19,6 +19,7 @@ Plan PlannerSimple::plan(const Model &model,
     for (i_t orI = oldPlan.orders.size(); orI < plan.orders.size(); ++orI)
     {
         const auto &order = plan.orders[orI];
+        const auto oStartJobsI = plan.jobs.size();
         for (const auto &orderedProd : order.products)
         {
             for (uint amI = 0; amI < orderedProd.amount; ++amI)
@@ -33,10 +34,20 @@ Plan PlannerSimple::plan(const Model &model,
                                         .techPlan = tpI});
             }
         }
+        plan.jobsFromToPerOrder.push_back(std::make_pair(oStartJobsI, plan.jobs.size()));
     }
+
+    // Adjust model state logs
     modelState.jobOpLogs.resize(plan.jobs.size());
-    // TODO: CONTINUE HERE
-    // for (size_t i = 0; i < oldPlan.jobs.size(); ++i)
+    for (size_t i = oldPlan.jobs.size(); i < plan.jobs.size(); ++i)
+    {
+        modelState.jobOpLogs[i].resize(
+            model.techPlans[plan.jobs[i].techPlan].operations.size(), JobOpLog{
+                                                                          .startTime = 0,
+                                                                          .endTime = 0,
+                                                                          .finished = false});
+    }
+    modelState.orderLogs.resize(plan.orders.size(), OrderLog{.completionTime = 0, .lateness = 0});
 
     // Find out which jobs can be reordered
     // 1. For each row of the wsOpLogs matrix, get the last job that can be reordered
