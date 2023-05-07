@@ -30,6 +30,11 @@ public:
                                               .jobOpLogs = std::vector<std::vector<JobOpLog>>(0),
                                               .nextJobsPerWS = std::vector<i_t>(model.workstations.size(), 0)}
     {
+        m_mstate_current.materialQuantities.resize(model.materials.size(), 10000);
+        m_mstate_predicted.materialQuantities.resize(model.materials.size(), 10000);
+        m_mstate_current.productQuantities.resize(model.products.size(), 0);
+        m_mstate_predicted.productQuantities.resize(model.products.size(), 0);
+
         m_plan.sch_matrix.resize(model.workstations.size(), std::vector<JobOp>());
     }
     ~ModelHandler() {}

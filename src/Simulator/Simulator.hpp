@@ -3,6 +3,7 @@
 
 #include "../Model/Model.hpp"
 #include "../Planner/Planner.hpp"
+#include "AmountLogger.hpp"
 
 class Simulator
 {
@@ -30,6 +31,9 @@ public:
     SimulatorSimple() {}
 
     ModelState simulate(const Model &model, const ModelState &modelState, const Plan &plan, long t_ref = 0) override;
+
+private:
+    AmountLogs m_amLogs;
 };
 
 #endif

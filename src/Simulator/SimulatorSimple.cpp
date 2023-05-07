@@ -33,6 +33,15 @@ ModelState SimulatorSimple::simulate(const Model &model,
                 continue;
 
             const auto &op = model.techPlans[job.techPlan].operations[jobOp.op];
+            // Check materials
+            for (const ThingAndAmount &mat : op.materials)
+            {
+                auto &matQuant = modelState.materialQuantities[mat.thing];
+                if (mat.amount > matQuant)
+                    throw std::invalid_argument("Plan cannot be executed: Insufficient materials.");
+                matQuant -= mat.amount;
+            }
+
             auto &wsops = modelState.wsOpLogs[wsI];
             long ref = wsops.size() == 0 ? t_ref : wsops[wsops.size() - 1].endTime;
             ref = model.workstations[wsI].breakRule.nextExecutableWithoutBreak(ref, op.time);
@@ -58,6 +67,13 @@ ModelState SimulatorSimple::simulate(const Model &model,
                 .job = jobOp.job,
                 .op = jobOp.op});
 
+            // Update product quantities in system
+            const TechPlan &tp = model.techPlans[job.techPlan];
+            if (jobOp.op == tp.operations.size() - 1)
+            {
+                modelState.productQuantities[job.product]++;
+            }
+
             // Update the order's completion time. If one of the order's operations finish after the
             // current completion time, then the order's completion time should be set to the operation's
             // completion time.
@@ -70,7 +86,7 @@ ModelState SimulatorSimple::simulate(const Model &model,
         }
         if (!couldLaunchAtLeastOneJob)
         {
-            throw std::invalid_argument("Plan cannot be executed.");
+            throw std::invalid_argument("Plan cannot be executed: Deadlock.");
         }
     }
 

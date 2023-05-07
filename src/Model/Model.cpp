@@ -58,7 +58,7 @@ Model generateRandomModel()
     constexpr uint minTimeForOperation = 1;
     constexpr uint maxTimeForOperation = 450;
     constexpr uint minNumOfMatPerOp = 1;
-    constexpr uint maxNumOfMatPerOp = 20;
+    constexpr uint maxNumOfMatPerOp = 10;
 
     const uint numberOfTechPlans = randBtw(minNumOfTechPlansPerProduct, maxNumOfTechPlansPerProduct);
     for (uint prodI = 0; prodI < model.products.size(); ++prodI)
@@ -130,10 +130,10 @@ std::vector<Order> generateOrders(uint numberOfOrders, uint numberOfProducts)
 ModelState ModelState::copyBeforeTime(long t_time) const
 {
     ModelState new_mstate{
-        .materials = materials,
-        .orderLogs = std::vector<OrderLog>(orderLogs.size(), OrderLog{.completionTime = 0,
-                                                                      .lateness = 0}),
-        .nextJobsPerWS = std::vector<i_t>(wsOpLogs.size(), 0)};
+        .orderLogs = std::vector<OrderLog>(orderLogs.size(), OrderLog{.completionTime = 0, .lateness = 0}),
+        .nextJobsPerWS = std::vector<i_t>(wsOpLogs.size(), 0),
+        .materialQuantities = materialQuantities,
+        .productQuantities = productQuantities};
     new_mstate.jobOpLogs.resize(jobOpLogs.size());
     for (i_t jobI = 0; jobI < jobOpLogs.size(); ++jobI)
         new_mstate.jobOpLogs[jobI].resize(

@@ -9,11 +9,12 @@
 typedef size_t i_t;
 // Workstation type
 typedef uint wt_t;
+typedef uint am_t;
 
 struct ThingAndAmount
 {
     i_t thing;
-    uint amount;
+    am_t amount;
 
     bool operator==(const ThingAndAmount &other) const { return thing == other.thing && amount == other.amount; }
 };
@@ -145,9 +146,11 @@ struct ModelState
 {
     std::vector<std::vector<WSOpLog>> wsOpLogs;
     std::vector<std::vector<JobOpLog>> jobOpLogs;
-    std::vector<ThingAndAmount> materials;
     std::vector<OrderLog> orderLogs;
     std::vector<i_t> nextJobsPerWS;
+
+    std::vector<am_t> materialQuantities;
+    std::vector<am_t> productQuantities;
 
     ModelState copyBeforeTime(long t_time) const;
 };
