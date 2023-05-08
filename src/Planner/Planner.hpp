@@ -7,7 +7,7 @@ class Planner
 {
 public:
     Planner() {}
-    ~Planner() {}
+    virtual ~Planner() {}
     Planner(const Planner &other) = delete;
     Planner &operator=(const Planner &other) = delete;
     Planner(Planner &&other) = default;

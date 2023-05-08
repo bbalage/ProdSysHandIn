@@ -8,6 +8,7 @@
 #include "../Evaluator/Evaluator.hpp"
 #include "../util/output.hpp"
 #include "../Optimizer/Optimizer.hpp"
+#include "../Simulator/AmountLogger.hpp"
 #include "Model.hpp"
 
 class ModelHandler
@@ -17,10 +18,12 @@ public:
         Planner &planner,
         Simulator &simulator,
         Optimizer &optimizer,
+        AmountLogger &amountLogger,
         Model model,
         long t_ref = 0L) : m_planner{planner},
                            m_simulator{simulator},
                            m_optimizer{optimizer},
+                           m_amountLogger{amountLogger},
                            m_model{model},
                            m_t_cur{t_ref},
                            m_mstate_current{.wsOpLogs = std::vector<std::vector<WSOpLog>>(model.workstations.size()),
@@ -45,6 +48,8 @@ public:
 
     void addOrders(std::vector<Order> orders);
     void advanceTime(long t_adv);
+    // TODO: Parametrize freq
+    AmountLogs calcLogs() const;
 
     const auto &t_cur() const { return m_t_cur; }
     const auto &model() const { return m_model; }
@@ -55,6 +60,7 @@ private:
     Planner &m_planner;
     Simulator &m_simulator;
     Optimizer &m_optimizer;
+    AmountLogger &m_amountLogger;
 
     Model m_model;
     long m_t_cur;

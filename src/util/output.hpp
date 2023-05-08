@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "../Evaluator/Evaluator.hpp"
+#include "../Simulator/AmountLogger.hpp"
 
 inline void print_eval(const Eval &eval)
 {
@@ -29,6 +30,11 @@ inline void print_gantt(const ModelState &mstate)
         }
         std::cout << std::endl;
     }
+}
+
+inline void print_amountLogs(const AmountLogs &amLogs)
+{
+    std::cout << amLogs.freq << std::endl;
 }
 
 #endif

@@ -19,6 +19,7 @@ int main(int argc, char **argv)
     // Build model
     PlannerSimple planner(t_frozen);
     SimulatorSimple simulator;
+    AmountLoggerSimple amountLogger;
     Evaluator evaluator(EvalWeights{.wCmax = 1,
                                     .wCsum = 1,
                                     .wLmax = 10,
@@ -28,7 +29,7 @@ int main(int argc, char **argv)
     long t_ref = 1440;
 
     ModelHandler mhandler(
-        planner, simulator, optimizer, generateRandomModel(), t_ref);
+        planner, simulator, optimizer, amountLogger, generateRandomModel(), t_ref);
     const Model &model = mhandler.model();
 
     // Receive order...
@@ -38,6 +39,8 @@ int main(int argc, char **argv)
     mhandler.addOrders(orders);
     orders = generateOrders(2, model.products.size());
     mhandler.addOrders(orders);
+    AmountLogs amLogs = mhandler.calcLogs();
+    print_amountLogs(amLogs);
 
     // Plan, simulate
 

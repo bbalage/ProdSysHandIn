@@ -77,3 +77,8 @@ void ModelHandler::advanceTime(long t_adv)
         }
     }
 }
+
+AmountLogs ModelHandler::calcLogs() const
+{
+    return m_amountLogger.calcAmountLogs(m_model, m_mstate_predicted, m_plan, m_t_cur, 10);
+}
