@@ -1,11 +1,12 @@
 #include "AmountLogger.hpp"
+#include <iostream>
 
 size_t AmountLogs::calcLogI(long t_time) const
 {
     return (t_time - start) / freq;
 }
 
-AmountLogs AmountLogger::calcAmountLogs(
+AmountLogs AmountLoggerSimple::calcAmountLogs(
     const Model &model,
     const ModelState &mstate,
     const Plan &plan,
@@ -19,14 +20,14 @@ AmountLogs AmountLogger::calcAmountLogs(
     // 1. Get how many completed operations we are talking about
     size_t sum = 0;
     std::vector<size_t> relevantOpIs(mstate.wsOpLogs.size());
-    for (size_t wsI = 0; wsI < mstate.wsOpLogs.size(); wsI)
+    for (size_t wsI = 0; wsI < mstate.wsOpLogs.size(); ++wsI)
     {
         const auto &wsOpLogs = mstate.wsOpLogs[wsI];
         const auto &it = std::lower_bound(wsOpLogs.begin(), wsOpLogs.end(), t_ref,
                                           [&mstate](const WSOpLog &wsOpLog, long t_ref)
                                           { return wsOpLog.endTime < t_ref; });
-        relevantOpIs[wsI] = wsOpLogs.size() - (wsOpLogs.end() - it);
-        sum += relevantOpIs[wsI];
+        relevantOpIs[wsI] = it - wsOpLogs.begin();
+        sum += wsOpLogs.size() - relevantOpIs[wsI];
     }
 
     // 2. Create an index for these operations, which orders them last to first completed
@@ -36,7 +37,9 @@ AmountLogs AmountLogger::calcAmountLogs(
         for (size_t opI = relevantOpIs[wsI]; opI < mstate.wsOpLogs[wsI].size(); ++opI)
         {
             index[counterI] = std::make_pair(wsI, opI);
+            ++counterI;
         }
+        std::cout << "counter: " << counterI << std::endl;
     }
     std::sort(index.begin(), index.end(), [&mstate](const auto &a, const auto &b)
               { return mstate.wsOpLogs[a.first][a.second].endTime < mstate.wsOpLogs[b.first][b.second].endTime; });
@@ -47,18 +50,16 @@ AmountLogs AmountLogger::calcAmountLogs(
 
     // 4. Prepare the sizes of logs and set the last amount in logs
     const auto numOfLogsRequired = (latestTime - t_ref) / t_freq + 1;
-    amLogs.matLogs.resize(model.materials.size());
+    amLogs.matLogs.resize(numOfLogsRequired, std::vector<am_t>(model.materials.size()));
     for (size_t matI = 0; matI < amLogs.matLogs.size(); ++matI)
     {
-        amLogs.matLogs[matI].resize(numOfLogsRequired);
-        amLogs.matLogs[matI][numOfLogsRequired - 1] = mstate.materialQuantities[matI];
+        amLogs.matLogs[numOfLogsRequired - 1][matI] = mstate.materialQuantities[matI];
     }
 
-    amLogs.prodLogs.resize(model.products.size());
+    amLogs.prodLogs.resize(numOfLogsRequired, std::vector<am_t>(model.products.size()));
     for (size_t prodI = 0; prodI < amLogs.prodLogs.size(); ++prodI)
     {
-        amLogs.prodLogs[prodI].resize(numOfLogsRequired);
-        amLogs.prodLogs[prodI][numOfLogsRequired - 1] = mstate.productQuantities[prodI];
+        amLogs.prodLogs[numOfLogsRequired - 1][prodI] = mstate.productQuantities[prodI];
     }
 
     // 5. Iterate from the last and get the logs
