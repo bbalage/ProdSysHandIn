@@ -78,7 +78,7 @@ void ModelHandler::advanceTime(long t_adv)
     }
 }
 
-AmountLogs ModelHandler::calcLogs() const
+AmountLogs ModelHandler::calcLogs(long t_freq) const
 {
-    return m_amountLogger.calcAmountLogs(m_model, m_mstate_predicted, m_plan, m_t_cur, 10);
+    return m_amountLogger.calcAmountLogs(m_model, m_mstate_predicted, m_plan, m_t_cur, t_freq);
 }

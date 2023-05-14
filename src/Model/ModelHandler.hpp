@@ -49,7 +49,7 @@ public:
     void addOrders(std::vector<Order> orders);
     void advanceTime(long t_adv);
     // TODO: Parametrize freq
-    AmountLogs calcLogs() const;
+    AmountLogs calcLogs(long t_freq = 100) const;
 
     const auto &t_cur() const { return m_t_cur; }
     const auto &model() const { return m_model; }

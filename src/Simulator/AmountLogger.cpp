@@ -62,30 +62,51 @@ AmountLogs AmountLoggerSimple::calcAmountLogs(
     }
 
     // 5. Iterate from the last and get the logs
-    std::vector<size_t> backTrackProdIs(model.products.size(), numOfLogsRequired - 1);
-    std::vector<size_t> backTrackMatIs(model.materials.size(), numOfLogsRequired - 1);
+    std::vector<long> backTrackProdIs(model.products.size(), numOfLogsRequired - 1);
+    std::vector<long> backTrackMatIs(model.materials.size(), numOfLogsRequired - 1);
     for (auto it = index.end() - 1; it >= index.begin(); --it)
     {
         const auto &[wsI, opI] = (*it);
         const WSOpLog &wsOpLog = mstate.wsOpLogs[wsI][opI];
         const Job &job = plan.jobs[wsOpLog.job];
-        const Operation &op = model.techPlans[job.techPlan].operations[wsOpLog.op];
+        const TechPlan &tp = model.techPlans[job.techPlan];
+        const Operation &op = tp.operations[wsOpLog.op];
         const i_t prodI = job.product;
-        const size_t logI = amLogs.calcLogI(wsOpLog.endTime);
+        const long logI = static_cast<long>(amLogs.calcLogI(wsOpLog.endTime));
 
-        for (size_t i = backTrackProdIs[job.product] - 1; i > logI; --i)
+        for (long i = backTrackProdIs[job.product] - 1; i >= logI; --i)
         {
             amLogs.prodLogs[i][prodI] = amLogs.prodLogs[i + 1][prodI];
         }
-        amLogs.prodLogs[logI][prodI]--;
+        if (wsOpLog.op == tp.operations.size() - 1)
+            amLogs.prodLogs[logI][prodI]--;
+        backTrackProdIs[job.product] = logI;
 
         for (const auto &mat : op.materials)
         {
-            for (size_t i = backTrackMatIs[mat.thing] - 1; i > logI; --i)
+            for (long i = backTrackMatIs[mat.thing] - 1; i >= logI; --i)
             {
                 amLogs.matLogs[i][mat.thing] = amLogs.matLogs[i + 1][mat.thing];
             }
             amLogs.matLogs[logI][mat.thing] += mat.amount;
+            backTrackMatIs[mat.thing] = logI;
+        }
+    }
+
+    // 6. Fill in any remaining time at the beginning
+    for (i_t prodI = 0; prodI < backTrackProdIs.size(); ++prodI)
+    {
+        for (long logI = 0; logI < backTrackProdIs[prodI]; ++logI)
+        {
+            amLogs.prodLogs[logI][prodI] = amLogs.prodLogs[backTrackProdIs[prodI]][prodI];
+        }
+    }
+
+    for (i_t matI = 0; matI < backTrackMatIs.size(); ++matI)
+    {
+        for (long logI = 0; logI < backTrackMatIs[matI]; ++logI)
+        {
+            amLogs.matLogs[logI][matI] = amLogs.matLogs[backTrackMatIs[matI]][matI];
         }
     }
 

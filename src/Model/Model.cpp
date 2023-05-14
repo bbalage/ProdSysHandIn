@@ -42,8 +42,8 @@ Model generateRandomModel()
     }
 
     // Generate products
-    constexpr uint minNumOfProducts = 30;
-    constexpr uint maxNumOfProducts = 60;
+    constexpr uint minNumOfProducts = 5;
+    constexpr uint maxNumOfProducts = 10;
     const uint numOfProducts = randBtw(minNumOfProducts, maxNumOfProducts);
     for (uint i = 0; i < numOfProducts; ++i)
     {
@@ -116,9 +116,18 @@ std::vector<Order> generateOrders(uint numberOfOrders, uint numberOfProducts)
         {
             auto amount = randBtw(minAmountPerProduct, maxAmountPerProduct);
             amountCounter += amount;
-            order.products.push_back(ThingAndAmount{
+            ThingAndAmount prodOrder{
                 .thing = randBtw(0, numberOfProducts),
-                .amount = amount});
+                .amount = amount};
+            auto foundIt = std::find(order.products.begin(), order.products.end(), prodOrder);
+            if (foundIt != order.products.end())
+            {
+                *foundIt += prodOrder;
+            }
+            else
+            {
+                order.products.push_back(prodOrder);
+            }
         }
         order.due = amountCounter * randBtw(minDueMultiplier, maxDueMultiplier);
         orders.push_back(std::move(order));

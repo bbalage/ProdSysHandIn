@@ -37,8 +37,8 @@ int main(int argc, char **argv)
     // generate 5 orders
     auto orders = generateOrders(5, model.products.size());
     mhandler.addOrders(orders);
-    orders = generateOrders(2, model.products.size());
-    mhandler.addOrders(orders);
+    // orders = generateOrders(2, model.products.size());
+    // mhandler.addOrders(orders);
     AmountLogs amLogs = mhandler.calcLogs();
     print_amountLogs(amLogs);
 
@@ -65,4 +65,5 @@ int main(int argc, char **argv)
     // - Optimize the new plan
     // - Install new plan
     // - Advance time
+    return 0;
 }

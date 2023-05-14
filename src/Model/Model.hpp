@@ -17,6 +17,7 @@ struct ThingAndAmount
     am_t amount;
 
     bool operator==(const ThingAndAmount &other) const { return thing == other.thing && amount == other.amount; }
+    void operator+=(const ThingAndAmount &other) { amount += other.amount; }
 };
 
 struct Material
