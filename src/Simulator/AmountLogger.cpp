@@ -39,7 +39,6 @@ AmountLogs AmountLoggerSimple::calcAmountLogs(
             index[counterI] = std::make_pair(wsI, opI);
             ++counterI;
         }
-        std::cout << "counter: " << counterI << std::endl;
     }
     std::sort(index.begin(), index.end(), [&mstate](const auto &a, const auto &b)
               { return mstate.wsOpLogs[a.first][a.second].endTime < mstate.wsOpLogs[b.first][b.second].endTime; });
@@ -51,13 +50,13 @@ AmountLogs AmountLoggerSimple::calcAmountLogs(
     // 4. Prepare the sizes of logs and set the last amount in logs
     const auto numOfLogsRequired = (latestTime - t_ref) / t_freq + 1;
     amLogs.matLogs.resize(numOfLogsRequired, std::vector<am_t>(model.materials.size()));
-    for (size_t matI = 0; matI < amLogs.matLogs.size(); ++matI)
+    for (size_t matI = 0; matI < model.materials.size(); ++matI)
     {
         amLogs.matLogs[numOfLogsRequired - 1][matI] = mstate.materialQuantities[matI];
     }
 
     amLogs.prodLogs.resize(numOfLogsRequired, std::vector<am_t>(model.products.size()));
-    for (size_t prodI = 0; prodI < amLogs.prodLogs.size(); ++prodI)
+    for (size_t prodI = 0; prodI < model.products.size(); ++prodI)
     {
         amLogs.prodLogs[numOfLogsRequired - 1][prodI] = mstate.productQuantities[prodI];
     }
