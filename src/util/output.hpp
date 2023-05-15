@@ -32,7 +32,7 @@ inline void print_gantt(const ModelState &mstate)
     }
 }
 
-inline void print_amountLogs(const AmountLogs &amLogs)
+inline void print_prodAmountLogs(const AmountLogs &amLogs)
 {
     long t = amLogs.start;
     for (size_t i = 0; i < amLogs.prodLogs[0].size(); ++i)
@@ -41,6 +41,26 @@ inline void print_amountLogs(const AmountLogs &amLogs)
     }
     std::cout << '\n';
     for (const auto &amLogAtT : amLogs.prodLogs)
+    {
+        std::cout << t << '\t';
+        for (const auto &am : amLogAtT)
+        {
+            std::cout << am << '\t';
+        }
+        std::cout << '\n';
+        t += amLogs.freq;
+    }
+}
+
+inline void print_matAmountLogs(const AmountLogs &amLogs)
+{
+    long t = amLogs.start;
+    for (size_t i = 0; i < amLogs.matLogs[0].size(); ++i)
+    {
+        std::cout << "\tm" << i;
+    }
+    std::cout << '\n';
+    for (const auto &amLogAtT : amLogs.matLogs)
     {
         std::cout << t << '\t';
         for (const auto &am : amLogAtT)

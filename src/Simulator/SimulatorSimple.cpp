@@ -33,14 +33,6 @@ ModelState SimulatorSimple::simulate(const Model &model,
                 continue;
 
             const auto &op = model.techPlans[job.techPlan].operations[jobOp.op];
-            // Check materials
-            for (const ThingAndAmount &mat : op.materials)
-            {
-                auto &matQuant = modelState.materialQuantities[mat.thing];
-                if (mat.amount > matQuant)
-                    throw std::invalid_argument("Plan cannot be executed: Insufficient materials.");
-                matQuant -= mat.amount;
-            }
 
             auto &wsops = modelState.wsOpLogs[wsI];
             long ref = wsops.size() == 0 ? t_ref : wsops[wsops.size() - 1].endTime;
@@ -59,6 +51,14 @@ ModelState SimulatorSimple::simulate(const Model &model,
             }
             else
                 continue;
+            // Check materials
+            for (const ThingAndAmount &mat : op.materials)
+            {
+                auto &matQuant = modelState.materialQuantities[mat.thing];
+                if (mat.amount > matQuant)
+                    throw std::invalid_argument("Plan cannot be executed: Insufficient materials.");
+                matQuant -= mat.amount;
+            }
             opLog.endTime = opLog.startTime + op.time;
             opLog.finished = true;
             wsops.push_back(WSOpLog{

@@ -40,7 +40,8 @@ int main(int argc, char **argv)
     // orders = generateOrders(2, model.products.size());
     // mhandler.addOrders(orders);
     AmountLogs amLogs = mhandler.calcLogs();
-    print_amountLogs(amLogs);
+    print_prodAmountLogs(amLogs);
+    print_matAmountLogs(amLogs);
 
     // Plan, simulate
 
