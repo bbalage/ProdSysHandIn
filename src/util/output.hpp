@@ -6,68 +6,68 @@
 #include "../Evaluator/Evaluator.hpp"
 #include "../Simulator/AmountLogger.hpp"
 
-inline void print_eval(const Eval &eval)
+inline void print_eval(std::ostream &ostream, const Eval &eval)
 {
-    std::cout << "Performance report:\n"
-              << "Cmax: " << eval.Cmax << "\n"
-              << "Csum: " << eval.Csum << "\n"
-              << "Lmax: " << eval.Lmax << "\n"
-              << "Tsum: " << eval.Tsum << "\n"
-              << "Usum: " << eval.Usum << std::endl;
+    ostream << "Performance report:\n"
+            << "Cmax: " << eval.Cmax << "\n"
+            << "Csum: " << eval.Csum << "\n"
+            << "Lmax: " << eval.Lmax << "\n"
+            << "Tsum: " << eval.Tsum << "\n"
+            << "Usum: " << eval.Usum << std::endl;
 }
 
-inline void print_gantt(const ModelState &mstate)
+inline void print_gantt(std::ostream &ostream, const ModelState &mstate)
 {
     for (const auto &wsOpLogs : mstate.wsOpLogs)
     {
-        std::cout << "Workstation: ";
+        ostream << "Workstation: ";
         for (const auto &wsOpLog : wsOpLogs)
         {
-            std::cout << " | " << wsOpLog.job
-                      << "/" << wsOpLog.op
-                      << " " << wsOpLog.startTime
-                      << " - " << wsOpLog.endTime;
+            ostream << " | " << wsOpLog.job
+                    << "/" << wsOpLog.op
+                    << " " << wsOpLog.startTime
+                    << " - " << wsOpLog.endTime;
         }
-        std::cout << std::endl;
+        ostream << std::endl;
     }
 }
 
-inline void print_prodAmountLogs(const AmountLogs &amLogs)
+inline void print_prodAmountLogs(std::ostream &ostream, const AmountLogs &amLogs)
 {
     long t = amLogs.start;
     for (size_t i = 0; i < amLogs.prodLogs[0].size(); ++i)
     {
-        std::cout << "\tp" << i;
+        ostream << "\tp" << i;
     }
-    std::cout << '\n';
+    ostream << '\n';
     for (const auto &amLogAtT : amLogs.prodLogs)
     {
-        std::cout << t << '\t';
+        ostream << t << '\t';
         for (const auto &am : amLogAtT)
         {
-            std::cout << am << '\t';
+            ostream << am << '\t';
         }
-        std::cout << '\n';
+        ostream << '\n';
         t += amLogs.freq;
     }
 }
 
-inline void print_matAmountLogs(const AmountLogs &amLogs)
+inline void print_matAmountLogs(std::ostream &ostream, const AmountLogs &amLogs)
 {
     long t = amLogs.start;
     for (size_t i = 0; i < amLogs.matLogs[0].size(); ++i)
     {
-        std::cout << "\tm" << i;
+        ostream << "\tm" << i;
     }
-    std::cout << '\n';
+    ostream << '\n';
     for (const auto &amLogAtT : amLogs.matLogs)
     {
-        std::cout << t << '\t';
+        ostream << t << '\t';
         for (const auto &am : amLogAtT)
         {
-            std::cout << am << '\t';
+            ostream << am << '\t';
         }
-        std::cout << '\n';
+        ostream << '\n';
         t += amLogs.freq;
     }
 }

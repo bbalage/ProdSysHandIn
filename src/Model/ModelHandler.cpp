@@ -12,13 +12,13 @@ void ModelHandler::addOrders(std::vector<Order> orders)
     ModelState sim_mstate = m_simulator.simulate(m_model, new_mstate, new_plan, m_t_cur);
     Eval eval = analyse(m_model, sim_mstate);
     std::cout << "Before optimization:" << std::endl;
-    print_eval(eval);
+    print_eval(std::cout, eval);
 
     ModelState out_mstate;
     m_optimizer.optimize(m_model, new_mstate, new_plan, out_mstate, eval, m_t_cur);
 
     std::cout << "After optimization:" << std::endl;
-    print_eval(eval);
+    print_eval(std::cout, eval);
 
     // Accept the new plan and state
     m_mstate_current = new_mstate;

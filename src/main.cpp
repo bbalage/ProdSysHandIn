@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 #include "Planner/Planner.hpp"
 #include "Simulator/Simulator.hpp"
@@ -37,11 +38,18 @@ int main(int argc, char **argv)
     // generate 5 orders
     auto orders = generateOrders(5, model.products.size());
     mhandler.addOrders(orders);
-    // orders = generateOrders(2, model.products.size());
-    // mhandler.addOrders(orders);
+    orders = generateOrders(2, model.products.size());
+    mhandler.addOrders(orders);
     AmountLogs amLogs = mhandler.calcLogs();
-    print_prodAmountLogs(amLogs);
-    print_matAmountLogs(amLogs);
+
+    std::ofstream ofstream;
+    ofstream.open("/home/bbalage/For_University/Bead/prod_sys/ProdSysHandIn/resources/prod_log.txt", std::ios_base::out);
+    print_prodAmountLogs(ofstream, amLogs);
+    ofstream.close();
+
+    ofstream.open("/home/bbalage/For_University/Bead/prod_sys/ProdSysHandIn/resources/mat_log.txt", std::ios_base::out);
+    print_matAmountLogs(ofstream, amLogs);
+    ofstream.close();
 
     // Plan, simulate
 
